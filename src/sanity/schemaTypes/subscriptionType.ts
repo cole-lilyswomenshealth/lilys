@@ -328,6 +328,62 @@ export const subscriptionType = defineType({
               type: 'boolean',
               description: 'Mark this variant as popular (shows badge)',
               initialValue: false
+            },
+            {
+              name: 'subVariants',
+              title: 'Sub-Variants',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  name: 'subVariant',
+                  title: 'Sub-Variant',
+                  fields: [
+                    {
+                      name: 'name',
+                      title: 'Name (English)',
+                      type: 'string',
+                      description: 'Name of the sub-variant',
+                      validation: (Rule) => Rule.required()
+                    },
+                    {
+                      name: 'nameEs',
+                      title: 'Name (Spanish)',
+                      type: 'string',
+                      description: 'Spanish translation of the sub-variant name'
+                    },
+                    {
+                      name: 'stripePriceId',
+                      title: 'Stripe Price ID',
+                      type: 'string',
+                      description: 'The ID of the corresponding price in Stripe for this sub-variant',
+                      validation: (Rule) => Rule.required()
+                    },
+                    {
+                      name: 'price',
+                      title: 'Price',
+                      type: 'number',
+                      description: 'The price for this sub-variant',
+                      validation: (Rule) => Rule.required().positive()
+                    }
+                  ],
+                  preview: {
+                    select: {
+                      title: 'name',
+                      price: 'price',
+                      stripePriceId: 'stripePriceId'
+                    },
+                    prepare({ title, price, stripePriceId }) {
+                      return {
+                        title: title || 'Untitled Sub-Variant',
+                        subtitle: `$${price} - ${stripePriceId || 'No Stripe ID'}`,
+                        media: CreditCardIcon
+                      };
+                    }
+                  }
+                }
+              ],
+              description: 'Sub-variants for this variant (inherits billing period from parent variant)'
             }
           ],
           preview: {

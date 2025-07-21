@@ -62,14 +62,6 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
       );
     }
     
-    if (variant.isPopular) {
-      return (
-        <span className="inline-block bg-green-600 text-white text-xs px-2 py-0.5 rounded-full mt-1">
-          {translations.lowestPrice}
-        </span>
-      );
-    }
-    
     return null;
   };
 
@@ -122,18 +114,18 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
             <div className="text-right">
               <div className="text-right">
                 <p className="font-semibold text-gray-900">
+                  {getTotalPriceDisplay(
+                    subscription.price,
+                    subscription.billingPeriod,
+                    subscription.customBillingPeriodMonths
+                  )}
+                </p>
+                <p className="text-sm text-gray-600">
                   {getMonthlyPriceDisplay(
                     subscription.price, 
                     subscription.billingPeriod, 
                     subscription.customBillingPeriodMonths,
                     subscription.monthlyDisplayPrice
-                  )}
-                </p>
-                <p className="text-sm text-gray-600">
-                  {getTotalPriceDisplay(
-                    subscription.price,
-                    subscription.billingPeriod,
-                    subscription.customBillingPeriodMonths
                   )}
                 </p>
               </div>
@@ -179,18 +171,18 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
                 <div className="text-right">
                   <div className="text-right">
                     <p className="font-semibold text-gray-900">
+                      {getTotalPriceDisplay(
+                        variant.price,
+                        variant.billingPeriod,
+                        variant.customBillingPeriodMonths
+                      )}
+                    </p>
+                    <p className="text-sm text-gray-600">
                       {getMonthlyPriceDisplay(
                         variant.price, 
                         variant.billingPeriod, 
                         variant.customBillingPeriodMonths,
                         variant.monthlyDisplayPrice
-                      )}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {getTotalPriceDisplay(
-                        variant.price,
-                        variant.billingPeriod,
-                        variant.customBillingPeriodMonths
                       )}
                     </p>
                   </div>

@@ -60,6 +60,15 @@ export type BillingPeriod =
   | 'annually'
   | 'other';
 
+// Interface for subscription sub-variant
+export interface SubscriptionSubVariant {
+  _key?: string;
+  name: string;
+  nameEs?: string;
+  stripePriceId: string;
+  price: number;
+}
+
 // Interface for subscription variant with strict typing
 export interface SubscriptionVariant {
   _key?: string;
@@ -77,6 +86,7 @@ export interface SubscriptionVariant {
   stripePriceId?: string;
   isDefault?: boolean;
   isPopular?: boolean;
+  subVariants?: SubscriptionSubVariant[];
 }
 
 // Main subscription interface with strict typing
@@ -130,6 +140,7 @@ export interface SubscriptionsData {
 export interface SubscriptionPurchaseData {
   subscriptionId: string;
   variant?: SubscriptionVariant | null;
+  subVariant?: SubscriptionSubVariant | null;
   isBase?: boolean;
   price: number;
   couponCode?: string;
