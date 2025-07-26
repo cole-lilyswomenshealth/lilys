@@ -18,7 +18,7 @@ export async function GET(req: Request) {
 
     const subscriptions = await stripe.subscriptions.list({
       limit,
-      expand: ['data.customer', 'data.items.data.price'],
+      expand: ['data.customer', 'data.items.data.price', 'data.items.data.price.product'],
     });
 
     // Filter out website-created subscriptions (those with sanityId in price metadata)
@@ -29,23 +29,30 @@ export async function GET(req: Request) {
       return !hasWebsiteMetadata;
     });
 
-    const manualSubscriptions = filteredSubscriptions.map(sub => ({
-      id: sub.id,
-      customer_email: typeof sub.customer === 'object' && sub.customer && 'email' in sub.customer 
-        ? sub.customer.email 
-        : null,
-      customer_id: typeof sub.customer === 'string' ? sub.customer : sub.customer?.id,
-      status: sub.status,
-      current_period_start: new Date(sub.current_period_start * 1000).toISOString(),
-      current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
-      created: new Date(sub.created * 1000).toISOString(),
-      plan_amount: sub.items.data[0]?.price?.unit_amount || 0,
-      plan_currency: sub.items.data[0]?.price?.currency || 'usd',
-      plan_interval: sub.items.data[0]?.price?.recurring?.interval || 'month',
-      product_name: typeof sub.items.data[0]?.price?.product === 'string' 
-        ? sub.items.data[0]?.price?.product 
-        : sub.items.data[0]?.price?.product?.name || 'Unknown Product'
-    }));
+    const manualSubscriptions = filteredSubscriptions.map(sub => {
+      const firstItem = sub.items.data[0];
+      const price = firstItem?.price;
+      
+      return {
+        id: sub.id,
+        customer_email: typeof sub.customer === 'object' && sub.customer && 'email' in sub.customer 
+          ? sub.customer.email 
+          : null,
+        customer_id: typeof sub.customer === 'string' ? sub.customer : sub.customer?.id,
+        status: sub.status,
+        current_period_start: new Date(sub.current_period_start * 1000).toISOString(),
+        current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+        created: new Date(sub.created * 1000).toISOString(),
+        plan_amount: price?.unit_amount || 0,
+        plan_currency: price?.currency || 'usd',
+        plan_interval: price?.recurring?.interval || 'month',
+        product_name: typeof price?.product === 'string' 
+          ? price.product 
+          : (price?.product && 'name' in price.product)
+            ? price.product.name || 'Unknown Product'
+            : 'Unknown Product'
+      };
+    });
 
     return NextResponse.json({
       success: true,
