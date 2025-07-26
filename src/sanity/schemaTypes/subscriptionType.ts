@@ -524,6 +524,14 @@ export const subscriptionType = defineType({
           return true;
         })
     }),
+    defineField({
+      name: 'isDefault',
+      title: 'Default Subscription',
+      type: 'boolean',
+      description: 'Mark this as the default subscription to display prominently',
+      initialValue: false,
+      group: 'pricing',
+    }),
 
     // Stripe Integration
     defineField({

@@ -35,6 +35,7 @@ async function getCategoriesWithSubscriptions(): Promise<SubscriptionsData> {
         compareAtPrice,
         billingPeriod,
         customBillingPeriodMonths,
+        isDefault,
         hasVariants,
         variants[]{
           _key,
