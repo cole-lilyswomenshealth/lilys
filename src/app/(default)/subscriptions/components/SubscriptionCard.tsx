@@ -224,14 +224,6 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               style={{ objectPosition: 'center' }}
             />
             
-            {/* Savings Badge */}
-            {pricingDisplay.savingsText && (
-              <div className="absolute top-4 right-4">
-                <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  {pricingDisplay.savingsText}
-                </span>
-              </div>
-            )}
           </div>
           
           {/* Title and Price Below Image */}
@@ -303,11 +295,6 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               <p className="text-sm text-gray-600">
                 {pricingDisplay.subtitle}
               </p>
-              {pricingDisplay.savingsText && (
-                <p className="text-sm text-green-600 font-medium">
-                  {pricingDisplay.savingsText}
-                </p>
-              )}
             </div>
             
             {/* Description content */}
