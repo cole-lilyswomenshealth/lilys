@@ -24,13 +24,13 @@ export default function AdminDashboardPage() {
         setStats([
           {
             title: "Active Subscriptions",
-            value: "142",
+            value: "",
             link: "/admin/subscriptions?status=active"
           },
           {
-            title: "Pending Subscriptions",
-            value: "7",
-            link: "/admin/subscriptions?status=pending"
+            title: "Manual Subscriptions",
+            value: "",
+            link: "/admin/manual-subscriptions"
           }
         ]);
       } catch (error) {
@@ -75,7 +75,7 @@ export default function AdminDashboardPage() {
                   className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow"
                 >
                   <h3 className="text-sm font-medium text-gray-500">{stat.title}</h3>
-                  <p className="text-2xl font-semibold text-gray-800 mt-1">{stat.value}</p>
+                  <p className="text-lg font-medium text-blue-600 mt-2">View {stat.title}</p>
                 </Link>
               ))}
             </div>

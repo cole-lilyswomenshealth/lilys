@@ -147,7 +147,7 @@ const AdminSubscriptionTable: React.FC = () => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
-    }).format(amount / 100);
+    }).format(amount);
   };
 
   useEffect(() => {
