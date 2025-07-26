@@ -31,7 +31,9 @@ export async function GET(req: Request) {
 
     const manualSubscriptions = filteredSubscriptions.map(sub => ({
       id: sub.id,
-      customer_email: typeof sub.customer === 'object' ? sub.customer?.email : null,
+      customer_email: typeof sub.customer === 'object' && sub.customer && 'email' in sub.customer 
+        ? sub.customer.email 
+        : null,
       customer_id: typeof sub.customer === 'string' ? sub.customer : sub.customer?.id,
       status: sub.status,
       current_period_start: new Date(sub.current_period_start * 1000).toISOString(),
