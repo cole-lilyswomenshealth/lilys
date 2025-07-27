@@ -18,7 +18,7 @@ export async function GET(req: Request) {
 
     const subscriptions = await stripe.subscriptions.list({
       limit,
-      expand: ['data.customer', 'data.items.data.price', 'data.items.data.price.product'],
+      expand: ['data.customer', 'data.items.data.price'],
     });
 
     // Filter out website-created subscriptions (those with sanityId in price metadata)
@@ -46,11 +46,9 @@ export async function GET(req: Request) {
         plan_amount: price?.unit_amount || 0,
         plan_currency: price?.currency || 'usd',
         plan_interval: price?.recurring?.interval || 'month',
-        product_name: typeof price?.product === 'string' 
+        product_id: typeof price?.product === 'string' 
           ? price.product 
-          : (price?.product && 'name' in price.product)
-            ? price.product.name || 'Unknown Product'
-            : 'Unknown Product'
+          : price?.product?.id || null
       };
     });
 

@@ -107,6 +107,7 @@ export interface Subscription {
   compareAtPrice?: number;
   billingPeriod: BillingPeriod;
   customBillingPeriodMonths?: number | null;
+  isDefault?: boolean;
   // Variant support
   hasVariants?: boolean;
   variants?: SubscriptionVariant[];

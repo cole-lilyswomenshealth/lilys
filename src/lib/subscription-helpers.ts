@@ -29,6 +29,7 @@ export async function getSubscriptionBySlug(slug: string): Promise<Subscription 
         compareAtPrice,
         billingPeriod,
         customBillingPeriodMonths,
+        isDefault,
         hasVariants,
         variants[]{
           _key,
@@ -98,6 +99,7 @@ export async function getAllSubscriptions(): Promise<Subscription[]> {
         compareAtPrice,
         billingPeriod,
         customBillingPeriodMonths,
+        isDefault,
         hasVariants,
         variants[]{
           _key,
@@ -156,6 +158,7 @@ export async function getFeaturedSubscriptions(): Promise<Subscription[]> {
         compareAtPrice,
         billingPeriod,
         customBillingPeriodMonths,
+        isDefault,
         hasVariants,
         variants[]{
           _key,
@@ -214,6 +217,7 @@ export async function getSubscriptionsByCategory(categorySlug: string): Promise<
         compareAtPrice,
         billingPeriod,
         customBillingPeriodMonths,
+        isDefault,
         hasVariants,
         variants[]{
           _key,
@@ -279,6 +283,7 @@ export async function getRelatedSubscriptions(subscription: Subscription): Promi
         compareAtPrice,
         billingPeriod,
         customBillingPeriodMonths,
+        isDefault,
         hasVariants,
         variants[]{
           _key,

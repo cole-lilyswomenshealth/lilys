@@ -97,17 +97,21 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
     mainPrice: string;
     subtitle: string;
   } => {
-    // Check base subscription first if marked as default
-    if (isDefault && monthlyDisplayPrice) {
-      return formatPricing(monthlyDisplayPrice, price, billingPeriod, customBillingPeriodMonths);
+    // Simple logic: Find item with isDefault = true
+    
+    // Check base subscription isDefault flag
+    if (isDefault) {
+      const displayPrice = monthlyDisplayPrice || price;
+      return formatPricing(displayPrice, price, billingPeriod, customBillingPeriodMonths);
     }
     
-    // Check variants for default
+    // Check variants for isDefault flag
     if (hasVariants && variants?.length > 0) {
       const defaultVariant = variants.find(v => v.isDefault);
-      if (defaultVariant?.monthlyDisplayPrice) {
+      if (defaultVariant) {
+        const displayPrice = defaultVariant.monthlyDisplayPrice || defaultVariant.price;
         return formatPricing(
-          defaultVariant.monthlyDisplayPrice, 
+          displayPrice, 
           defaultVariant.price, 
           defaultVariant.billingPeriod, 
           defaultVariant.customBillingPeriodMonths
@@ -115,18 +119,15 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
       }
     }
     
-    // Fallback to base subscription
-    if (monthlyDisplayPrice) {
-      return formatPricing(monthlyDisplayPrice, price, billingPeriod, customBillingPeriodMonths);
-    }
-    
-    return { mainPrice: '$0/month', subtitle: '' };
+    // No default set, use base subscription
+    const displayPrice = monthlyDisplayPrice || price;
+    return formatPricing(displayPrice, price, billingPeriod, customBillingPeriodMonths);
   };
 
-  const formatPricing = (monthlyPrice: number, totalPrice: number, period: string, customMonths?: number | null) => {
-    const formattedMonthly = globalPricing.formatter.formatPrice(monthlyPrice);
+  const formatPricing = (displayPrice: number, totalPrice: number, period: string, customMonths?: number | null) => {
+    const formattedDisplay = globalPricing.formatter.formatPrice(displayPrice);
     const monthText = currentLanguage === 'es' ? '/mes' : '/month';
-    const mainPrice = `${formattedMonthly}${monthText}`;
+    const mainPrice = `${formattedDisplay}${monthText}`;
     
     const formattedTotal = globalPricing.formatter.formatPrice(totalPrice);
     let subtitle = '';
