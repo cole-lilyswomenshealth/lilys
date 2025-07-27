@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { bizSdk } from 'facebook-nodejs-business-sdk';
 import { facebookEventSchema, validateRequest, createSafeErrorMessage } from '@/utils/validation';
 import { rateLimit } from '@/utils/rateLimit';
 import crypto from 'crypto';
 
+const bizSdk = require('facebook-nodejs-business-sdk');
 const { FacebookAdsApi, ServerEvent, EventRequest, UserData, CustomData } = bizSdk;
 
 interface FacebookEventRequest {
@@ -20,7 +20,7 @@ interface FacebookEventResponse {
 }
 
 class FacebookConversionsClient {
-  private api: typeof FacebookAdsApi;
+  private api: any;
   private accessToken: string;
   private datasetId: string;
 
