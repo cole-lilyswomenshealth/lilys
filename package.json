@@ -25,6 +25,7 @@
     "countries-list": "^3.1.1",
     "deepl-node": "^1.17.3",
     "dotenv": "^16.4.7",
+    "facebook-nodejs-business-sdk": "^23.0.1",
     "framer-motion": "^12.4.2",
     "i18next": "^25.0.2",
     "i18next-browser-languagedetector": "^8.1.0",

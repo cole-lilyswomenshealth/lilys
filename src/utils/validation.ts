@@ -150,6 +150,15 @@ export function createValidationErrorResponse(error: string) {
   };
 }
 
+// Facebook event validation schema
+export const facebookEventSchema = z.object({
+  eventName: z.enum(['ViewContent', 'Purchase']),
+  eventSourceUrl: z.string().url('Invalid URL format'),
+  userAgent: z.string().optional(),
+  ipAddress: z.string().optional(),
+  customData: z.record(z.any()).optional(),
+});
+
 // Safe error message for client (removes sensitive info)
 export function createSafeErrorMessage(error: unknown): string {
   if (error instanceof Error) {
