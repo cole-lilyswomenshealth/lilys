@@ -48,6 +48,8 @@ interface UserData {
   submission_count: number;
   meeting_url?: string;
   meeting_uuid?: string;
+  exam_pos_id?: number;
+  dose_level?: number;
   created_at: string;
   updated_at: string;
 }
@@ -96,6 +98,55 @@ const getPharmacyConfig = (examId: number) => {
   };
 };
 
+// Get exam_pos_id for specific dose level
+async function getExamPosId(examId: number, state: string): Promise<number> {
+  try {
+    const response = await fetch('https://api.qualiphy.me/api/partner_pharmacy_treatment_packages', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'Clinic-API/1.0'
+      },
+      body: JSON.stringify({
+        api_key: process.env.QUALIPHY_API_KEY,
+        exam_ids: [examId],
+        patient_state: state,
+        pharmacy_ids: 12
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Qualiphy packages API error: ${response.status}`);
+    }
+    
+    const packages = await response.json();
+    
+    // Filter and find dose 1 package (Phase 1: always dose 1)
+    let dose1Package;
+    
+    if (examId === 2413) { // Semaglutide
+      dose1Package = packages.find((p: any) => 
+        p.title.includes('Semaglutide - Injection - Dose 1') &&
+        !p.title.includes('Niacinamide')
+      );
+    } else if (examId === 2414) { // Tirzepatide  
+      dose1Package = packages.find((p: any) =>
+        (p.title.includes('Dose 1:') || p.title.includes('eDose 1:')) &&
+        !p.title.includes('Niacinamide') &&
+        !p.title.includes('Weekly -')
+      );
+    }
+    
+    return dose1Package?.exam_pos_id || packages[0]?.exam_pos_id;
+    
+  } catch (error) {
+    console.error('Error fetching Qualiphy packages:', error);
+    // Fallback to known dose 1 exam_pos_ids
+    return examId === 2413 ? 9608 : 9680;
+  }
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json();
@@ -120,6 +171,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Get pharmacy configuration based on exam type
     const pharmacyConfig = getPharmacyConfig(examId);
+    
+    // Get correct exam_pos_id for dose 1 (Phase 1: always dose 1)
+    const examPosId = await getExamPosId(examId, stateAbbreviation);
+    const doseLevel = 1; // Phase 1: always dose 1, Phase 2: implement progression
 
     // Check if user already exists and has submitted
     const { data: existingUserData, error: fetchError } = await supabaseAdmin
@@ -161,6 +216,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const qualiphyPayload = {
       api_key: process.env.QUALIPHY_API_KEY,
       exams: [examId],
+      exam_pos_id: examPosId, // Dynamic package selection
       first_name: firstName,
       last_name: lastName,
       email: email,
@@ -228,7 +284,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             submission_count: (existingUserData.submission_count || 0) + 1,
             updated_at: now,
             meeting_url: qualiphyData.meeting_url,
-            meeting_uuid: qualiphyData.meeting_uuid
+            meeting_uuid: qualiphyData.meeting_uuid,
+            exam_pos_id: examPosId,
+            dose_level: doseLevel
           })
           .eq('email', email)
           .select('id, submission_count')
@@ -251,7 +309,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             created_at: now,
             updated_at: now,
             meeting_url: qualiphyData.meeting_url,
-            meeting_uuid: qualiphyData.meeting_uuid
+            meeting_uuid: qualiphyData.meeting_uuid,
+            exam_pos_id: examPosId,
+            dose_level: doseLevel
           })
           .select('id, submission_count')
           .single();
