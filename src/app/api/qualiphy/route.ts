@@ -94,7 +94,7 @@ const getPharmacyConfig = (examId: number) => {
     custom_pharmacy_delivery_method: 2,
     custom_pharmacy: 2,
     custom_pharmacy_patient_choice: 1,
-    custom_pharmacy_clinic_billing: "Lilys Womens"
+    custom_pharmacy_clinic_billing: "Lily's Women's Health"
   };
 };
 

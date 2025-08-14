@@ -17,6 +17,7 @@ export default defineConfig({
   basePath: '/studio',
   projectId,
   dataset,
+  title: `ForHer Studio (${dataset.toUpperCase()})`, // Shows which environment
   // Add and edit the content schema in the './sanity/schemaTypes' folder
   schema,
   plugins: [

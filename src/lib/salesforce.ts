@@ -1,11 +1,12 @@
 // src/lib/salesforce.ts
 interface WeightLossLeadData {
-  Name: string;
-  First_Name__c?: string;
-  Last_Name__c?: string;
-  Email__c?: string;
-  Phone__c?: string;
-  State__c?: string;
+  FirstName?: string;
+  LastName?: string;
+  Email?: string;
+  Phone?: string;
+  Company: string;
+  Country?: string;
+  State?: string;
   DOB__c?: string;
   Age_Group__c?: string;
   Is_Female__c?: string;
@@ -20,7 +21,7 @@ interface WeightLossLeadData {
   Has_Eating_Disorder__c?: string;
   Previous_Weight_Loss_Attempts__c?: string;
   Form_Submission_Date__c: string;
-  Lead_Source__c: string;
+  LeadSource: string;
 }
 
 // State mapping from abbreviation to full name
@@ -114,7 +115,7 @@ class SalesforceService {
     });
 
     if (!response.ok) {
-      throw new Error('Authentication failed');
+      throw new Error(`Authentication failed: ${response.status} - ${response.statusText}`);
     }
 
     const responseText = await response.text();
@@ -123,7 +124,7 @@ class SalesforceService {
     const serverUrlMatch = responseText.match(/<serverUrl>([^<]+)<\/serverUrl>/);
     
     if (!sessionIdMatch || !serverUrlMatch) {
-      throw new Error('Authentication failed');
+      throw new Error('Authentication failed: Unable to extract session data');
     }
 
     return {
@@ -157,7 +158,7 @@ class SalesforceService {
       const { sessionId, serverUrl } = await this.login();
       
       const baseUrl = serverUrl.replace(/\/services\/Soap\/c\/[\d.]+.*/, '');
-      const createUrl = `${baseUrl}/services/data/v58.0/sobjects/Weight_Loss_Lead__c`;
+      const createUrl = `${baseUrl}/services/data/v58.0/sobjects/Lead`;
       
       const response = await fetch(createUrl, {
         method: 'POST',
@@ -168,14 +169,31 @@ class SalesforceService {
         body: JSON.stringify(leadData)
       });
 
+      const responseText = await response.text();
+
       if (!response.ok) {
+        let errorMessage = 'Failed to create lead';
+        try {
+          const errorData = JSON.parse(responseText);
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.error) {
+            errorMessage = errorData.error;
+          } else if (Array.isArray(errorData) && errorData[0]?.message) {
+            errorMessage = errorData[0].message;
+          }
+        } catch (e) {
+          // Silent error parsing failure
+        }
+        
         return {
           success: false,
-          error: 'Failed to create lead'
+          error: `${errorMessage} (Status: ${response.status})`
         };
       }
 
-      const result = await response.json();
+      const result = JSON.parse(responseText);
+      
       return {
         success: true,
         id: result.id
@@ -184,7 +202,7 @@ class SalesforceService {
     } catch (error) {
       return {
         success: false,
-        error: 'Service unavailable'
+        error: `Service unavailable: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -241,12 +259,13 @@ class SalesforceService {
     const fullStateName = contactInfo?.state ? this.getFullStateName(contactInfo.state) : undefined;
 
     return {
-      Name: `Weight Loss Lead - ${fullName}`,
-      First_Name__c: firstName,
-      Last_Name__c: lastName,
-      Email__c: contactInfo?.email,
-      Phone__c: contactInfo?.phone,
-      State__c: fullStateName, // Now sends full state name instead of abbreviation
+      FirstName: firstName,
+      LastName: lastName,
+      Email: contactInfo?.email,
+      Phone: contactInfo?.phone,
+      Company: 'Lilys Women Health',
+      Country: 'United States',
+      State: fullStateName, // Now sends full state name instead of abbreviation
       DOB__c: dateOfBirth,
       Age_Group__c: formData['age-group'] === '55-plus' ? '55+' : formData['age-group'],
       Is_Female__c: formData.gender === 'yes' ? 'Yes' : formData.gender === 'no' ? 'No' : undefined,
@@ -261,7 +280,7 @@ class SalesforceService {
       Has_Eating_Disorder__c: formData['eating-disorder'] === 'yes' ? 'Yes' : formData['eating-disorder'] === 'no' ? 'No' : undefined,
       Previous_Weight_Loss_Attempts__c: formData['previous-weight-loss'],
       Form_Submission_Date__c: new Date().toISOString(),
-      Lead_Source__c: 'Weight Loss Form'
+      LeadSource: 'Lilys Weight Loss Adv'
     };
   }
 }

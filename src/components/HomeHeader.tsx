@@ -2,10 +2,9 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { FiShoppingCart, FiMenu, FiX, FiUser } from "react-icons/fi";
+import {  FiMenu, FiX, FiUser } from "react-icons/fi";
 import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
-import { useCartStore } from "@/store/cartStore";
 import { User } from "@supabase/supabase-js";
 import LanguageSwitcher from "./LanguageSwitcher";
 import useTranslations from "@/hooks/useTranslations";
@@ -58,9 +57,6 @@ const HeaderContent: React.FC = () => {
   // Get user from auth store
   const { user, isAuthenticated } = useAuthStore();
 
-  // Get cart data from Zustand - keep this for later use
-  const cart = useCartStore((state) => state.cart);
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0); // Calculate total quantity
 
   // Define menu items for consistency between desktop and mobile
   const menuItems: MenuItem[] = [
@@ -218,17 +214,6 @@ const HeaderContent: React.FC = () => {
               </button>
             </Link>
 
-            {/* Shopping Cart Icon - TEMPORARILY HIDDEN */}
-            {/* 
-            <Link href="/cart" className="relative">
-              <FiShoppingCart className="text-2xl text-black cursor-pointer" />
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
-            */}
           </div>
         </div>
       </div>

@@ -25,15 +25,17 @@ export interface SalesforceErrorResponse {
 }
 
 /**
- * Weight Loss Lead Custom Object Fields
- * Matches the Salesforce custom object schema
+ * Salesforce Lead Object Fields
+ * Matches the standard Lead object with custom fields
  */
 export interface WeightLossLeadData {
   // Contact Information - Updated with new fields
-  First_Name__c: string;
-  Last_Name__c: string;
-  Phone__c?: string;
-  State__c?: string;
+  FirstName: string;
+  LastName: string;
+  Phone?: string;
+  Company: string;
+  Country?: string;
+  State?: string;
   DOB__c?: string; // Date of Birth in YYYY-MM-DD format
 
   // Demographics
@@ -58,7 +60,7 @@ export interface WeightLossLeadData {
 
   // System Fields
   Form_Submission_Date__c: string; // ISO date string
-  Lead_Source__c: string;
+  LeadSource: string;
   Lead_Name__c: string; // For list view visibility
 }
 
