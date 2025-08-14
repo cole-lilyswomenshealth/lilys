@@ -18,20 +18,6 @@ export const structure = (S: StructureBuilder) =>
             ])
         ),
       
-      // E-commerce
-      S.listItem()
-        .title('Products')
-        .child(
-          S.list()
-            .title('Products')
-            .items([
-              S.documentTypeListItem('product').title('Products'),
-              S.documentTypeListItem('productCategory').title('Categories'),
-            ])
-        ),
-        
-      // Orders
-      S.documentTypeListItem('order').title('Orders'),
       
       // Subscriptions & Appointments
       S.listItem()
@@ -93,8 +79,8 @@ export const structure = (S: StructureBuilder) =>
       S.divider(),
       ...S.documentTypeListItems().filter(
         (item) => item.getId() && ![
-          'post', 'category', 'author', 'product', 'productCategory', 
-          'order', 'subscription', 'subscriptionCategory', 'appointment', 
+          'post', 'category', 'author', 
+          'subscription', 'subscriptionCategory', 'appointment', 
           'userSubscription', 'userAppointment', 'coupon'
         ].includes(item.getId()!),
       ),

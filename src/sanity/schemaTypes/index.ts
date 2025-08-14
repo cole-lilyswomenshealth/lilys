@@ -5,9 +5,6 @@ import {blockContentType} from './blockContentType'
 import {categoryType} from './categoryType'
 import {postType} from './postType'
 import {authorType} from './authorType'
-import {productType} from './productType'
-import {productCategoryType} from './productCategoryType'
-import {orderType} from './orderType'
 import {subscriptionType} from './subscriptionType'
 import {subscriptionCategoryType} from './subscriptionCategoryType'
 import {appointmentType} from './appointmentType'
@@ -21,9 +18,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     categoryType, 
     postType, 
     authorType, 
-    productType, 
-    productCategoryType, 
-    orderType,
     subscriptionType,
     subscriptionCategoryType,
     appointmentType,

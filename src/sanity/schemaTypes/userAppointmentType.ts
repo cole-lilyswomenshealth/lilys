@@ -33,11 +33,10 @@ export const userAppointmentType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'orderId',
-      title: 'Order ID',
-      type: 'reference',
-      to: [{type: 'order'}],
-      description: 'Related order for this appointment',
+      name: 'stripeSessionId',
+      title: 'Stripe Session ID',
+      type: 'string',
+      description: 'Stripe payment session ID for this appointment',
     }),
     defineField({
       name: 'subscriptionId',
