@@ -191,7 +191,7 @@ export async function trackPurchaseInitiation(
       value: finalPrice,
       currency: 'USD',
       num_items: 1,
-      coupon_applied: appliedCoupon || null,
+      coupon_applied: appliedCoupon || undefined,
       variant_selected: selectedVariant
     }
   });
