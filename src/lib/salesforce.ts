@@ -88,12 +88,28 @@ class SalesforceService {
     this.password = process.env.SALESFORCE_PASSWORD!;
     this.loginUrl = process.env.SALESFORCE_LOGIN_URL!;
 
+    // DEBUG LOG: Environment variables check
+    console.log('[SALESFORCE_DEBUG] Salesforce service initialized:', {
+      hasUsername: !!this.username,
+      hasPassword: !!this.password,
+      hasLoginUrl: !!this.loginUrl,
+      loginUrl: this.loginUrl,
+      usernamePrefix: this.username ? this.username.substring(0, 10) + '...' : 'MISSING'
+    });
+
     if (!this.username || !this.password || !this.loginUrl) {
+      console.error('[SALESFORCE_DEBUG] Missing Salesforce credentials:', {
+        username: !!this.username,
+        password: !!this.password,
+        loginUrl: !!this.loginUrl
+      });
       throw new Error('Missing Salesforce credentials');
     }
   }
 
   private async login(): Promise<{ sessionId: string; serverUrl: string }> {
+    console.log('[SALESFORCE_DEBUG] Starting authentication...');
+    
     const soapBody = `<?xml version="1.0" encoding="utf-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:enterprise.soap.sforce.com">
    <soapenv:Header/>
@@ -105,32 +121,67 @@ class SalesforceService {
    </soapenv:Body>
 </soapenv:Envelope>`;
 
-    const response = await fetch(`${this.loginUrl}/services/Soap/c/58.0`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/xml; charset=UTF-8',
-        'SOAPAction': 'login'
-      },
-      body: soapBody
-    });
+    const loginEndpoint = `${this.loginUrl}/services/Soap/c/58.0`;
+    console.log('[SALESFORCE_DEBUG] Login endpoint:', loginEndpoint);
 
-    if (!response.ok) {
-      throw new Error(`Authentication failed: ${response.status} - ${response.statusText}`);
+    try {
+      const response = await fetch(loginEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/xml; charset=UTF-8',
+          'SOAPAction': 'login'
+        },
+        body: soapBody
+      });
+
+      console.log('[SALESFORCE_DEBUG] Login response status:', response.status);
+      
+      if (!response.ok) {
+        console.error('[SALESFORCE_DEBUG] Authentication HTTP error:', {
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+        throw new Error(`Authentication failed: ${response.status} - ${response.statusText}`);
+      }
+
+      const responseText = await response.text();
+      console.log('[SALESFORCE_DEBUG] Login response received (length):', responseText.length);
+      
+      // Check for SOAP faults
+      if (responseText.includes('soap:Fault') || responseText.includes('faultstring')) {
+        console.error('[SALESFORCE_DEBUG] SOAP Fault in login response:', responseText);
+        throw new Error(`Authentication SOAP fault: ${responseText}`);
+      }
+      
+      const sessionIdMatch = responseText.match(/<sessionId>([^<]+)<\/sessionId>/);
+      const serverUrlMatch = responseText.match(/<serverUrl>([^<]+)<\/serverUrl>/);
+      
+      if (!sessionIdMatch || !serverUrlMatch) {
+        console.error('[SALESFORCE_DEBUG] Failed to extract session data:', {
+          hasSessionId: !!sessionIdMatch,
+          hasServerUrl: !!serverUrlMatch,
+          responseText: responseText.substring(0, 500) + '...'
+        });
+        throw new Error('Authentication failed: Unable to extract session data');
+      }
+
+      console.log('[SALESFORCE_DEBUG] Authentication successful:', {
+        sessionIdLength: sessionIdMatch[1].length,
+        serverUrl: serverUrlMatch[1]
+      });
+
+      return {
+        sessionId: sessionIdMatch[1],
+        serverUrl: serverUrlMatch[1]
+      };
+    } catch (error) {
+      console.error('[SALESFORCE_DEBUG] Login error:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'Unknown'
+      });
+      throw error;
     }
-
-    const responseText = await response.text();
-    
-    const sessionIdMatch = responseText.match(/<sessionId>([^<]+)<\/sessionId>/);
-    const serverUrlMatch = responseText.match(/<serverUrl>([^<]+)<\/serverUrl>/);
-    
-    if (!sessionIdMatch || !serverUrlMatch) {
-      throw new Error('Authentication failed: Unable to extract session data');
-    }
-
-    return {
-      sessionId: sessionIdMatch[1],
-      serverUrl: serverUrlMatch[1]
-    };
   }
 
   /**
@@ -155,10 +206,20 @@ class SalesforceService {
 
   async createWeightLossLead(leadData: WeightLossLeadData): Promise<{ success: boolean; id?: string; error?: string }> {
     try {
+      console.log('[SALESFORCE_DEBUG] Creating lead with data:', {
+        firstName: leadData.FirstName,
+        lastName: leadData.LastName,
+        email: leadData.Email,
+        hasAllRequiredFields: !!(leadData.FirstName && leadData.LastName && leadData.Email && leadData.Company)
+      });
+
       const { sessionId, serverUrl } = await this.login();
       
       const baseUrl = serverUrl.replace(/\/services\/Soap\/c\/[\d.]+.*/, '');
       const createUrl = `${baseUrl}/services/data/v58.0/sobjects/Lead`;
+      
+      console.log('[SALESFORCE_DEBUG] Lead creation URL:', createUrl);
+      console.log('[SALESFORCE_DEBUG] Session ID length:', sessionId.length);
       
       const response = await fetch(createUrl, {
         method: 'POST',
@@ -169,22 +230,37 @@ class SalesforceService {
         body: JSON.stringify(leadData)
       });
 
+      console.log('[SALESFORCE_DEBUG] Lead creation response status:', response.status);
+      
       const responseText = await response.text();
+      console.log('[SALESFORCE_DEBUG] Lead creation response text:', responseText);
 
       if (!response.ok) {
         let errorMessage = 'Failed to create lead';
+        let parsedError = null;
+        
         try {
-          const errorData = JSON.parse(responseText);
-          if (errorData.message) {
-            errorMessage = errorData.message;
-          } else if (errorData.error) {
-            errorMessage = errorData.error;
-          } else if (Array.isArray(errorData) && errorData[0]?.message) {
-            errorMessage = errorData[0].message;
+          parsedError = JSON.parse(responseText);
+          console.log('[SALESFORCE_DEBUG] Parsed error response:', parsedError);
+          
+          if (parsedError.message) {
+            errorMessage = parsedError.message;
+          } else if (parsedError.error) {
+            errorMessage = parsedError.error;
+          } else if (Array.isArray(parsedError) && parsedError[0]?.message) {
+            errorMessage = parsedError[0].message;
           }
         } catch (e) {
-          // Silent error parsing failure
+          console.error('[SALESFORCE_DEBUG] Failed to parse error response:', e);
+          errorMessage = responseText || 'Unknown error';
         }
+        
+        console.error('[SALESFORCE_DEBUG] Lead creation failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorMessage,
+          fullResponse: responseText
+        });
         
         return {
           success: false,
@@ -192,7 +268,20 @@ class SalesforceService {
         };
       }
 
-      const result = JSON.parse(responseText);
+      let result;
+      try {
+        result = JSON.parse(responseText);
+        console.log('[SALESFORCE_DEBUG] Lead creation success:', {
+          leadId: result.id,
+          fullResponse: result
+        });
+      } catch (e) {
+        console.error('[SALESFORCE_DEBUG] Failed to parse success response:', responseText);
+        return {
+          success: false,
+          error: 'Invalid response format from Salesforce'
+        };
+      }
       
       return {
         success: true,
@@ -200,6 +289,12 @@ class SalesforceService {
       };
 
     } catch (error) {
+      console.error('[SALESFORCE_DEBUG] Unexpected error in createWeightLossLead:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        name: error instanceof Error ? error.name : 'Unknown'
+      });
+      
       return {
         success: false,
         error: `Service unavailable: ${error instanceof Error ? error.message : 'Unknown error'}`
