@@ -5,7 +5,6 @@ import { Stripe } from "stripe";
 import stripe from "./utils/stripe-client";
 
 // Import handlers
-import { handleCheckoutSession } from "./handlers/checkout";
 import { 
   handleSubscriptionUpdated, 
   handleSubscriptionDeleted 
@@ -54,7 +53,9 @@ export async function POST(req: Request) {
     // Handle the event based on its type
     switch (event.type) {
       case 'checkout.session.completed':
-        return await handleCheckoutSession(event.data.object as Stripe.Checkout.Session);
+        // Checkout sessions are no longer used after product removal
+        console.log(`Ignoring checkout.session.completed event (products removed): ${event.data.object.id}`);
+        return NextResponse.json({ received: true });
       
       case 'invoice.payment_succeeded':
         return await handleInvoicePaymentSucceeded(event.data.object as Stripe.Invoice);
