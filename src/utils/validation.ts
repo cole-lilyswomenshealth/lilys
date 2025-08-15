@@ -152,11 +152,38 @@ export function createValidationErrorResponse(error: string) {
 
 // Facebook event validation schema
 export const facebookEventSchema = z.object({
-  eventName: z.enum(['ViewContent', 'Purchase']),
+  eventName: z.enum(['ViewContent', 'Purchase', 'Lead', 'CompleteRegistration', 'AddToCart', 'InitiateCheckout']),
   eventSourceUrl: z.string().url('Invalid URL format'),
   userAgent: z.string().optional(),
   ipAddress: z.string().optional(),
-  customData: z.record(z.any()).optional(),
+  userData: z.object({
+    em: z.string().optional(), // email (auto-hashed by Meta)
+    fn: z.string().optional(), // first name (auto-hashed by Meta)
+    ln: z.string().optional(), // last name (auto-hashed by Meta)
+    st: z.string().optional(), // state
+    db: z.string().optional(), // date of birth YYYYMMDD format
+  }).optional(),
+  customData: z.object({
+    content_type: z.string().optional(),
+    content_category: z.string().optional(),
+    content_ids: z.array(z.string()).optional(),
+    content_name: z.string().optional(),
+    currency: z.string().optional(),
+    value: z.number().optional(),
+    num_items: z.number().optional(),
+    transaction_id: z.string().optional(),
+    // Weight loss specific custom data
+    bmi: z.number().optional(),
+    age_group: z.string().optional(),
+    eligible: z.boolean().optional(),
+    billing_period: z.string().optional(),
+    dosage: z.string().optional(),
+    coupon_applied: z.string().optional(),
+    variant_selected: z.string().optional(),
+    subscription_id: z.string().optional(),
+    plan_name: z.string().optional(),
+    billing_cycle: z.string().optional(),
+  }).optional(),
 });
 
 // Safe error message for client (removes sensitive info)

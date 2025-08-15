@@ -9,6 +9,7 @@ import { useSubscriptionPurchase } from '@/hooks/useSubscriptionPurchase';
 import { useAuthStore } from '@/store/authStore';
 import { useSubscriptionPricing } from '@/hooks/useSubscriptionPricing';
 import { Translations } from '@/types/subscriptionDetails';
+import { trackSubscriptionView, trackVariantSelection } from '@/utils/facebookTracking';
 
 // Import sub-components
 import { SubscriptionBreadcrumb } from './SubscriptionBreadcrumb';
@@ -100,6 +101,7 @@ export default function SubscriptionDetails({ subscription }: SubscriptionDetail
   const [discountedPrice, setDiscountedPrice] = useState<number | null>(null);
   const [discountAmount, setDiscountAmount] = useState<number>(0);
   const [purchaseError, setPurchaseError] = useState<string>('');
+  const [hasTrackedInitialView, setHasTrackedInitialView] = useState<boolean>(false);
 
   // Hooks with error boundaries
   const { t, currentLanguage } = useTranslations();
@@ -219,6 +221,47 @@ export default function SubscriptionDetails({ subscription }: SubscriptionDetail
       setSelectedVariant(null);
     }
   }, [subscription, captureError]);
+
+  // Track subscription page view with enterprise-level error handling
+  useEffect(() => {
+    if (!hasTrackedInitialView && typeof window !== 'undefined' && subscription?.slug?.current) {
+      try {
+        const currentPrice = selectedVariant ? selectedVariant.price : subscription.price;
+        trackSubscriptionView(
+          window.location.href,
+          subscription.slug.current,
+          subscription.title || 'Unknown Subscription',
+          currentPrice
+        );
+        setHasTrackedInitialView(true);
+      } catch (error) {
+        captureError(error as Error, 'subscription-view-tracking');
+      }
+    }
+  }, [subscription, selectedVariant, hasTrackedInitialView, captureError]);
+
+  // Track variant selection changes
+  useEffect(() => {
+    if (selectedVariant && typeof window !== 'undefined' && subscription?.slug?.current && hasTrackedInitialView) {
+      try {
+        const dosage = selectedVariant.dosageAmount && selectedVariant.dosageUnit 
+          ? `${selectedVariant.dosageAmount}${selectedVariant.dosageUnit}`
+          : undefined;
+          
+        trackVariantSelection(
+          window.location.href,
+          subscription.slug.current,
+          subscription.title || 'Unknown Subscription',
+          selectedVariant.title || 'Unknown Variant',
+          selectedVariant.price,
+          selectedVariant.billingPeriod || 'monthly',
+          dosage
+        );
+      } catch (error) {
+        captureError(error as Error, 'variant-selection-tracking');
+      }
+    }
+  }, [selectedVariant, subscription, hasTrackedInitialView, captureError]);
 
   // Auth state management with enterprise security
   useEffect(() => {

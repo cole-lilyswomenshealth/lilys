@@ -8,6 +8,7 @@ import ProgressBar from "@/app/c/wm/components/ProgressBar";
 import { QuestionRenderer } from "./QuestionTypes";
 import { weightLossQuestions, getProgressPercentage, calculateBMI, checkEligibility, validateContactInfo } from "../data/questions";
 import { FormResponse, QuestionType, ContactInfoData } from "../types";
+import { trackSurveyStart, trackSurveyCompletion } from "@/utils/facebookTracking";
 
 interface WeightLossFormProps {
   initialOffset?: number;
@@ -119,6 +120,7 @@ export default function WeightLossForm({ initialOffset = 1 }: WeightLossFormProp
   
   const [responses, setResponses] = useState<FormResponse>({});
   const [bmi, setBmi] = useState<number | null>(null);
+  const [hasTrackedSurveyStart, setHasTrackedSurveyStart] = useState<boolean>(false);
   
   useEffect(() => {
     if (responses['current-weight'] && responses['height']) {
@@ -158,6 +160,14 @@ export default function WeightLossForm({ initialOffset = 1 }: WeightLossFormProp
       }
     }
   }, []);
+
+  // Track survey start on first interaction
+  useEffect(() => {
+    if (typeof window !== 'undefined' && offset === 1 && !hasTrackedSurveyStart) {
+      trackSurveyStart(window.location.href);
+      setHasTrackedSurveyStart(true);
+    }
+  }, [offset, hasTrackedSurveyStart]);
   
   const handleResponseChange = (value: any): void => {
     if (!currentQuestion) return;
@@ -212,8 +222,21 @@ export default function WeightLossForm({ initialOffset = 1 }: WeightLossFormProp
       setIsTransitioning(true);
       
       const contactInfo = responses['contact-info'] as ContactInfoData | undefined;
+      const ageGroup = responses['age-group'] as string | undefined;
+      const isEligible = !ineligibilityReason;
       
-      // NEW: Submit user data in background (fire and forget)
+      // Track survey completion with user data
+      if (typeof window !== 'undefined') {
+        trackSurveyCompletion(
+          window.location.href,
+          contactInfo,
+          bmi || undefined,
+          ageGroup,
+          isEligible
+        );
+      }
+      
+      // Submit user data in background (fire and forget)
       if (contactInfo) {
         submitUserDataInBackground(contactInfo);
       }

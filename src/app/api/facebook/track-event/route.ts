@@ -4,13 +4,40 @@ import { rateLimit } from '@/utils/rateLimit';
 import crypto from 'crypto';
 
 interface FacebookEventRequest {
-  eventName: 'ViewContent' | 'Purchase';
+  eventName: 'ViewContent' | 'Purchase' | 'Lead' | 'CompleteRegistration' | 'AddToCart' | 'InitiateCheckout';
   eventSourceUrl: string;
   userAgent?: string;
   ipAddress?: string;
   fbp?: string;
   fbc?: string;
-  customData?: Record<string, any>;
+  userData?: {
+    em?: string; // email
+    fn?: string; // first name
+    ln?: string; // last name
+    st?: string; // state
+    db?: string; // date of birth
+  };
+  customData?: {
+    content_type?: string;
+    content_category?: string;
+    content_ids?: string[];
+    content_name?: string;
+    currency?: string;
+    value?: number;
+    num_items?: number;
+    transaction_id?: string;
+    // Weight loss specific
+    bmi?: number;
+    age_group?: string;
+    eligible?: boolean;
+    billing_period?: string;
+    dosage?: string;
+    coupon_applied?: string;
+    variant_selected?: string;
+    subscription_id?: string;
+    plan_name?: string;
+    billing_cycle?: string;
+  };
 }
 
 interface FacebookEventResponse {
@@ -30,13 +57,32 @@ interface FacebookPayload {
       client_user_agent?: string;
       fbp?: string;
       fbc?: string;
+      em?: string; // email (hashed by Meta)
+      fn?: string; // first name (hashed by Meta)
+      ln?: string; // last name (hashed by Meta)
+      st?: string; // state
+      db?: string; // date of birth
     };
     custom_data?: {
       content_type?: string;
       content_category?: string;
       content_ids?: string[];
+      content_name?: string;
       currency?: string;
       value?: number;
+      num_items?: number;
+      transaction_id?: string;
+      // Weight loss specific
+      bmi?: number;
+      age_group?: string;
+      eligible?: boolean;
+      billing_period?: string;
+      dosage?: string;
+      coupon_applied?: string;
+      variant_selected?: string;
+      subscription_id?: string;
+      plan_name?: string;
+      billing_cycle?: string;
     };
   }>;
 }
@@ -123,14 +169,34 @@ export async function POST(req: NextRequest): Promise<NextResponse<FacebookEvent
           ...(userAgent && { client_user_agent: userAgent }),
           ...(fbp && { fbp }),
           ...(fbc && { fbc }),
+          // User data (Meta handles hashing automatically)
+          ...(eventData.userData?.em && { em: eventData.userData.em }),
+          ...(eventData.userData?.fn && { fn: eventData.userData.fn }),
+          ...(eventData.userData?.ln && { ln: eventData.userData.ln }),
+          ...(eventData.userData?.st && { st: eventData.userData.st }),
+          ...(eventData.userData?.db && { db: eventData.userData.db }),
         },
         ...(eventData.customData && {
           custom_data: {
             ...(eventData.customData.content_type && { content_type: eventData.customData.content_type }),
             ...(eventData.customData.content_category && { content_category: eventData.customData.content_category }),
             ...(eventData.customData.content_ids && { content_ids: eventData.customData.content_ids }),
+            ...(eventData.customData.content_name && { content_name: eventData.customData.content_name }),
             ...(eventData.customData.currency && { currency: eventData.customData.currency }),
             ...(eventData.customData.value && { value: eventData.customData.value }),
+            ...(eventData.customData.num_items && { num_items: eventData.customData.num_items }),
+            ...(eventData.customData.transaction_id && { transaction_id: eventData.customData.transaction_id }),
+            // Weight loss specific custom data
+            ...(eventData.customData.bmi && { bmi: eventData.customData.bmi }),
+            ...(eventData.customData.age_group && { age_group: eventData.customData.age_group }),
+            ...(typeof eventData.customData.eligible === 'boolean' && { eligible: eventData.customData.eligible }),
+            ...(eventData.customData.billing_period && { billing_period: eventData.customData.billing_period }),
+            ...(eventData.customData.dosage && { dosage: eventData.customData.dosage }),
+            ...(eventData.customData.coupon_applied && { coupon_applied: eventData.customData.coupon_applied }),
+            ...(eventData.customData.variant_selected && { variant_selected: eventData.customData.variant_selected }),
+            ...(eventData.customData.subscription_id && { subscription_id: eventData.customData.subscription_id }),
+            ...(eventData.customData.plan_name && { plan_name: eventData.customData.plan_name }),
+            ...(eventData.customData.billing_cycle && { billing_cycle: eventData.customData.billing_cycle }),
           }
         })
       }]

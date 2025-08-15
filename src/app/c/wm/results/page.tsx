@@ -10,6 +10,7 @@ import { client } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { Subscription } from '@/types/subscription-page';
 import WeightLossSubscriptionGrid from "../components/WeightLossSubscriptionGrid";
+import { trackResultsPageView } from "@/utils/facebookTracking";
 
 // Define component properties
 interface WeightLossResultsProps {}
@@ -129,7 +130,7 @@ export default function ResultsPage({}: WeightLossResultsProps) {
     fetchFeaturedSubscription();
   }, []);
   
-  // Sequential animations
+  // Sequential animations and tracking
   useEffect(() => {
     const contentTimer = setTimeout(() => {
       setShowContent(true);
@@ -138,6 +139,24 @@ export default function ResultsPage({}: WeightLossResultsProps) {
     const featuresTimer = setTimeout(() => {
       setShowFeatures(true);
     }, 1200);
+
+    // Track results page view
+    if (typeof window !== 'undefined') {
+      try {
+        const storedResponses = sessionStorage.getItem("weightLossResponses");
+        const ineligibilityReason = sessionStorage.getItem("ineligibilityReason");
+        const isEligible = !ineligibilityReason;
+        
+        trackResultsPageView(
+          window.location.href,
+          'semaglutide', // Default recommended plan
+          isEligible
+        );
+      } catch (error) {
+        // Track with minimal data if session storage fails
+        trackResultsPageView(window.location.href, 'semaglutide');
+      }
+    }
     
     return () => {
       clearTimeout(contentTimer);

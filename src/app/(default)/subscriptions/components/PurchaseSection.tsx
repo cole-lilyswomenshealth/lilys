@@ -2,6 +2,7 @@
 import CouponInput from '@/components/CouponInput';
 import { Translations } from '@/types/subscriptionDetails';
 import { globalPricing } from '@/utils/pricing';
+import { trackPurchaseInitiation } from '@/utils/facebookTracking';
 
 interface PurchaseSectionProps {
   subscription: any;
@@ -72,7 +73,25 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
       {/* Purchase CTA Button */}
       <div className="mb-8">
         <button
-          onClick={onSubscribe}
+          onClick={() => {
+            // Track purchase initiation
+            if (typeof window !== 'undefined' && subscription?.slug?.current) {
+              const finalPrice = discountedPrice || getCurrentPrice();
+              const selectedVariantTitle = selectedVariant?.title;
+              
+              trackPurchaseInitiation(
+                window.location.href,
+                subscription.slug.current,
+                subscription.title || 'Unknown Subscription',
+                finalPrice,
+                appliedCouponCode || undefined,
+                selectedVariantTitle || undefined
+              );
+            }
+            
+            // Execute original subscribe function
+            onSubscribe();
+          }}
           disabled={isProcessing || isLoading || !isSomethingSelected}
           className={`w-full py-4 px-6 rounded-full text-white font-bold text-lg transition-all ${
             isProcessing || isLoading || !isSomethingSelected
