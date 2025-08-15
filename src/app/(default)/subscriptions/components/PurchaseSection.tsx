@@ -27,6 +27,8 @@ interface PurchaseSectionProps {
 
 export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
   subscription,
+  selectedVariant,
+  selectedBase,
   appliedCouponCode,
   discountedPrice,
   purchaseError,
