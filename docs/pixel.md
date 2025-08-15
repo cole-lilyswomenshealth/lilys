@@ -209,6 +209,9 @@ trackPurchaseCompletion(
 - **`src/app/(default)/subscriptions/components/SubscriptionDetails.tsx`**: Subscription view and variant selection
 - **`src/app/(default)/subscriptions/components/PurchaseSection.tsx`**: Purchase initiation tracking
 
+### Removed Components
+- **`src/app/(default)/subscriptions/components/FacebookTracker.tsx`**: ❌ **REMOVED** - Was causing duplicate tracking and `__missing_event` issues. Functionality replaced by SubscriptionDetails.tsx with proper event names and rich data.
+
 ---
 
 ## Facebook Business Manager Filtering

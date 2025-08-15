@@ -5,7 +5,6 @@ import { Metadata } from 'next';
 import SubscriptionGrid from './components/SubscriptionGrid';
 import { SubscriptionsData, Subscription, SubscriptionCategory } from '@/types/subscription-page';
 import PageHeader from '@/components/PageHeader';
-import FacebookTracker from './components/FacebookTracker';
 
 export const metadata: Metadata = {
   title: 'Subscription Plans',
@@ -149,8 +148,6 @@ export default async function SubscriptionsPage() {
 
   return (
     <div className="relative overflow-hidden">
-      <FacebookTracker />
-      
       {/* Subtle decorative elements for the page */}
       <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-[#ffe6f0] opacity-10 blur-3xl"></div>
       <div className="absolute top-40 right-0 w-96 h-96 rounded-full bg-[#f9dde5] opacity-20 blur-3xl"></div>
