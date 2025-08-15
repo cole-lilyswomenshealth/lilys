@@ -89,14 +89,17 @@ interface FacebookPayload {
 
 async function sendToFacebookAPI(payload: FacebookPayload): Promise<{ success: boolean; error?: string }> {
   try {
-    const accessToken = process.env.FACEBOOK_ACCESS_TOKEN!;
-    const datasetId = process.env.FACEBOOK_DATASET_ID!;
+    // Using exact variable names from Facebook API documentation
+    // https://graph.facebook.com/{API_VERSION}/{PIXEL_ID}/events?access_token={TOKEN}
+    const TOKEN = process.env.FACEBOOK_ACCESS_TOKEN!;
+    const PIXEL_ID = process.env.FACEBOOK_PIXEL_ID!;
+    const API_VERSION = process.env.FACEBOOK_API_VERSION || 'v21.0';
     
-    if (!accessToken || !datasetId) {
-      throw new Error('Missing Facebook configuration');
+    if (!TOKEN || !PIXEL_ID) {
+      throw new Error('Missing Facebook configuration: TOKEN or PIXEL_ID');
     }
 
-    const response = await fetch(`https://graph.facebook.com/v21.0/${datasetId}/events?access_token=${accessToken}`, {
+    const response = await fetch(`https://graph.facebook.com/${API_VERSION}/${PIXEL_ID}/events?access_token=${TOKEN}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
