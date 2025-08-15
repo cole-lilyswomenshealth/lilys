@@ -26,8 +26,8 @@ async function initRedis() {
   
   try {
     // Check if Redis environment variables are available
-    const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.REDIS_URL;
-    const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.REDIS_TOKEN;
+    const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || process.env.REDIS_URL;
+    const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || process.env.REDIS_TOKEN;
     
     if (!redisUrl) {
       console.warn('Redis URL not configured, using in-memory fallback');
