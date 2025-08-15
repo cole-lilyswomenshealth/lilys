@@ -20,7 +20,7 @@ declare global {
 export default function FacebookPixel() {
   const handlePixelLoad = () => {
     // Ensure fbq is available globally for tracking functions
-    if (typeof window !== 'undefined' && window.fbq) {
+    if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
       // Additional initialization if needed
       console.log('Facebook Pixel loaded successfully');
     }
