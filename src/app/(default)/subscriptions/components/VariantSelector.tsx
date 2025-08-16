@@ -40,8 +40,8 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
 
   const getTotalPriceDisplay = (
     price: number,
-    _billingPeriod: string, // TODO: Use for period-specific text like "every 3 months", "per year"
-    _customBillingPeriodMonths?: number | null // TODO: Use for custom period display
+    billingPeriod: string,
+    customBillingPeriodMonths?: number | null
   ): string => {
     const formattedPrice = globalPricing.formatter.formatPrice(price);
     const totalText = currentLanguage === 'es' ? 'total' : 'total';

@@ -1,7 +1,7 @@
 //src/app/account/layout.tsx
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";

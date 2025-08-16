@@ -7,6 +7,7 @@ import { trackPurchaseInitiation } from '@/utils/facebookTracking';
 interface PurchaseSectionProps {
   subscription: any;
   selectedVariant: any;
+  selectedBase: boolean;
   appliedCouponCode: string;
   discountedPrice: number | null;
   purchaseError: string;
@@ -27,6 +28,7 @@ interface PurchaseSectionProps {
 export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
   subscription,
   selectedVariant,
+  selectedBase,
   appliedCouponCode,
   discountedPrice,
   purchaseError,

@@ -4,6 +4,10 @@ import { useSearchParams } from "next/navigation";
 import ForgotPassword from "@/components/Auth/ForgotPassword";
 import { Suspense } from "react";
 
+interface ForgotPasswordProps {
+  returnUrl?: string | null;
+}
+
 // Create a client component that uses the search params
 const ForgotPasswordWithParams = () => {
   const searchParams = useSearchParams();

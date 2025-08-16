@@ -12,7 +12,7 @@ export const EmptyState = () => {
         </svg>
       </div>
       <h3 className="text-lg font-medium text-gray-800 mb-2">No Subscriptions</h3>
-      <p className="text-gray-600 mb-6">You don&apos;t have any active subscriptions yet.</p>
+      <p className="text-gray-600 mb-6">You don't have any active subscriptions yet.</p>
       <Link href="/subscriptions" className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors">
         Browse Subscription Plans
       </Link>

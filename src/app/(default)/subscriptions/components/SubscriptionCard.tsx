@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { SubscriptionFeature, BlockContent, SubscriptionVariant } from '@/types/subscription-page';
@@ -12,7 +12,7 @@ import Modal from '@/components/Modal';
 import PortableText from '@/components/PortableText';
 import { urlFor } from '@/sanity/lib/image';
 import { SanityImageSource } from '@sanity/image-url/lib/types/types';
-import { globalPricing } from '@/utils/pricing';
+import { globalPricing, PricingUtils } from '@/utils/pricing';
 
 interface SubscriptionCardProps {
   id: string;
@@ -46,6 +46,7 @@ interface SubscriptionCardProps {
 }
 
 const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
+  id,
   title,
   titleEs,
   description,
@@ -59,6 +60,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   variants = [],
   features = [],
   featuresEs = [],
+  categories,
   cardType = 'basic',
   slug,
   image,

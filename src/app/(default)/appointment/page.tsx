@@ -73,7 +73,7 @@ const AppointmentContent: React.FC = () => {
     };
     
     handleSubscriptionRedirect();
-  }, [user, isAuthenticated, checkSession, syncSubscriptionStatuses, router, searchParams, isProcessing]);
+  }, [user, isAuthenticated, checkSession, syncSubscriptionStatuses, router, searchParams]);
 
   return (
     <main className="bg-white">
