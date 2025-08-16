@@ -24,7 +24,6 @@ export async function handleInvoicePaymentSucceeded(
     }, { status: 400 });
   }
   
-  console.log(`Processing subscription renewal for ${subscriptionId}`);
   
   try {
     // Get subscription details
@@ -76,7 +75,6 @@ export async function handleInvoicePaymentSucceeded(
       message: "Invoice payment processed successfully"
     });
   } catch (error) {
-    console.error("Error processing invoice payment:", error);
     return NextResponse.json(
       { 
         success: false, 
@@ -102,7 +100,6 @@ export async function handleInvoicePaymentFailed(
     }, { status: 400 });
   }
 
-  console.log(`Processing failed payment for subscription ${subscriptionId}`);
   
   try {
     // Find the user subscription in Supabase
@@ -142,7 +139,6 @@ export async function handleInvoicePaymentFailed(
       message: "Invoice payment failure handled"
     });
   } catch (error) {
-    console.error("Error processing invoice payment failure:", error);
     return NextResponse.json(
       { 
         success: false, 

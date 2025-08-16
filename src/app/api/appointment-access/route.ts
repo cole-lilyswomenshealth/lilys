@@ -73,7 +73,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<AppointmentAc
       }, { status: 400 });
     }
 
-    console.log(`🔒 Checking appointment access for user: ${userId}`);
 
     // Simple query to check for active subscription
     const { data: subscriptionData, error: subError } = await supabaseAdmin
@@ -94,7 +93,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<AppointmentAc
 
     // Check if user has valid subscription
     if (subError || !subscriptionData) {
-      console.log(`❌ No valid subscription found for user: ${userId}`);
       return NextResponse.json({
         success: false,
         hasAccess: false,
@@ -102,7 +100,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<AppointmentAc
       }, { status: 403 });
     }
 
-    console.log(`✅ Found active subscription: ${subscriptionData.id} for plan: ${subscriptionData.plan_name}`);
 
     // Grant access if user has active subscription
     return NextResponse.json({
@@ -114,7 +111,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<AppointmentAc
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    console.error('💥 Appointment access error:', error);
     
     return NextResponse.json({
       success: false,
@@ -172,7 +168,6 @@ export async function GET(req: NextRequest): Promise<NextResponse<AppointmentAcc
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    console.error('GET appointment access error:', error);
     
     return NextResponse.json({
       success: false,

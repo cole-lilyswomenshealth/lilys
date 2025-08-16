@@ -13,7 +13,6 @@ import {
 export async function handlePaymentIntentSucceeded(
   paymentIntent: Stripe.PaymentIntent
 ): Promise<NextResponse> {
-  console.log(`💰 Payment intent succeeded: ${paymentIntent.id}`);
   
   try {
     // If we have the metadata with order ID, double-check it's marked as paid
@@ -52,7 +51,6 @@ export async function handlePaymentIntentSucceeded(
       message: "Payment intent succeeded" 
     });
   } catch (error) {
-    console.error("Error handling payment intent success:", error);
     return NextResponse.json(
       { 
         success: false, 
@@ -69,7 +67,6 @@ export async function handlePaymentIntentSucceeded(
 export async function handlePaymentIntentFailed(
   paymentIntent: Stripe.PaymentIntent
 ): Promise<NextResponse> {
-  console.log(`❌ Payment failed: ${paymentIntent.id}`);
   
   try {
     // If we have the metadata with order ID, update the order status
@@ -106,7 +103,6 @@ export async function handlePaymentIntentFailed(
       message: "Payment intent failure handled" 
     });
   } catch (error) {
-    console.error("Error handling payment intent failure:", error);
     return NextResponse.json(
       { 
         success: false, 

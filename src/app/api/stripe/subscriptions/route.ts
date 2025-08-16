@@ -137,20 +137,11 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
   const startTime = Date.now();
   
   try {
-    console.log('🚀 Starting subscription purchase...');
-    
     const data: SubscriptionPurchaseRequest = await req.json();
-    console.log('📨 Purchase request data:', { 
-      subscriptionId: data.subscriptionId, 
-      variantKey: data.variantKey || 'undefined (base subscription)',
-      userEmail: data.userEmail,
-      couponCode: data.couponCode || 'none'
-    });
 
     // Validate request data
     const validation = validateRequest(subscriptionPurchaseSchema, data);
     if (!validation.success) {
-      console.log('❌ Validation failed:', validation.error);
       return NextResponse.json(
         { success: false, error: validation.error },
         { status: 400 }
@@ -196,12 +187,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
       )
     ]);
 
-    const authTime = Date.now() - startTime;
-    console.log(`⚡ Auth & subscription fetch completed in ${authTime}ms`);
-
     // Early validation - fail fast
     if (!user) {
-      console.log('❌ Authentication failed - no user found');
       return NextResponse.json(
         { success: false, error: 'Authentication required' },
         { status: 401 }
@@ -209,20 +196,16 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
     }
 
     if (!subscription) {
-      console.log('❌ Subscription not found');
       return NextResponse.json(
         { success: false, error: 'Subscription plan not found' },
         { status: 404 }
       );
     }
 
-    console.log('✅ User authenticated and subscription found:', subscription.title);
-
     const userId = user.id;
     const userEmail = user.email || validatedData.userEmail;
     
     if (!userEmail) {
-      console.log('❌ Missing user email');
       return NextResponse.json(
         { success: false, error: 'User email is required' },
         { status: 400 }
@@ -232,7 +215,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
     // Check rate limit
     const rateLimitResult = await purchaseRateLimit(req, userId);
     if (!rateLimitResult.success) {
-      console.log('❌ Rate limit exceeded for user:', userId);
       return NextResponse.json(
         {
           success: false,
@@ -257,23 +239,18 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
         // User explicitly selected a variant
         selectedVariant = subscription.variants.find(v => v._key === validatedData.variantKey) || null;
         if (!selectedVariant) {
-          console.log('❌ Selected variant not found');
           return NextResponse.json(
             { success: false, error: 'Selected variant not found' },
             { status: 404 }
           );
         }
-        console.log('✅ Variant found:', selectedVariant.title);
       } else {
-        // 🔧 FIXED: User selected base subscription (variantKey is undefined)
-        // Do NOT fall back to default variant - respect the base subscription selection
+        // User selected base subscription (variantKey is undefined)
         selectedVariant = null;
-        console.log('✅ Using base subscription (no variant selected)');
       }
     } else {
       // Subscription has no variants, always use base
       selectedVariant = null;
-      console.log('✅ Using base subscription (no variants available)');
     }
     
     // Calculate effective price and billing period
@@ -283,20 +260,12 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
       ? selectedVariant.customBillingPeriodMonths 
       : subscription.customBillingPeriodMonths;
 
-    console.log('💰 Pricing details:', {
-      isVariant: !!selectedVariant,
-      variantKey: selectedVariant?._key || 'none (base subscription)',
-      effectivePrice,
-      effectiveBillingPeriod,
-      effectiveCustomMonths
-    });
 
     let originalPrice = effectivePrice;
     let appliedCoupon: SanityCoupon | null = null;
 
     // Handle coupon validation if provided
     if (validatedData.couponCode && subscription.allowCoupons) {
-      console.log('🎫 Validating coupon:', validatedData.couponCode);
       const couponResult = await validateAndApplyCoupon(
         validatedData.couponCode, 
         subscription, 
@@ -307,9 +276,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
       if (couponResult.isValid && couponResult.coupon && couponResult.discountedPrice) {
         appliedCoupon = couponResult.coupon;
         effectivePrice = couponResult.discountedPrice;
-        console.log(`✅ Coupon applied: ${appliedCoupon.code}, new price: $${effectivePrice}`);
       } else {
-        console.log('❌ Coupon validation failed:', couponResult.error);
         return NextResponse.json(
           { success: false, error: couponResult.error || 'Invalid coupon code' },
           { status: 400 }
@@ -318,7 +285,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
     }
 
     // Get or create Stripe customer
-    console.log('👤 Getting or creating Stripe customer...');
     let stripeCustomerId: string;
     
     try {
@@ -329,7 +295,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
       
       if (customers.data.length > 0) {
         stripeCustomerId = customers.data[0].id;
-        console.log('✅ Found existing customer:', stripeCustomerId);
       } else {
         const customer = await stripe.customers.create({
           email: userEmail,
@@ -338,10 +303,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
           },
         });
         stripeCustomerId = customer.id;
-        console.log('✅ Created new customer:', stripeCustomerId);
       }
     } catch (customerError) {
-      console.error('❌ Customer creation/retrieval failed:', customerError);
       return NextResponse.json(
         { success: false, error: 'Failed to set up customer account' },
         { status: 500 }
@@ -351,7 +314,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
     // Get or create Stripe product
     let stripeProductId = subscription.stripeProductId;
     if (!stripeProductId) {
-      console.log('🏭 Creating Stripe product...');
       const product = await stripe.products.create({
         name: subscription.title,
         description: `${subscription.title} subscription`,
@@ -363,8 +325,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
       
       // Update Sanity with product ID (non-blocking)
       sanityClient.patch(subscription._id).set({ stripeProductId }).commit()
-        .then(() => console.log('✅ Updated Sanity with product ID'))
-        .catch(error => console.warn('Failed to update Sanity with product ID:', error));
+        .catch(() => {});
     }
 
     // Get or create Stripe price
@@ -372,7 +333,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
     
     if (appliedCoupon) {
       // Create temporary price for discounted amount
-      console.log("Creating temporary discounted Stripe price");
       const { interval, interval_count } = getStripeIntervalConfig(effectiveBillingPeriod, effectiveCustomMonths);
       
       const stripePrice = await stripe.prices.create({
@@ -398,13 +358,10 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
       // Use existing price or create new one
       if (selectedVariant && selectedVariant.stripePriceId) {
         stripePriceId = selectedVariant.stripePriceId;
-        console.log('Using existing variant price ID:', stripePriceId);
       } else if (!selectedVariant && subscription.stripePriceId) {
         stripePriceId = subscription.stripePriceId;
-        console.log('Using existing subscription price ID:', stripePriceId);
       } else {
         // Create new price
-        console.log("Creating new Stripe price");
         const { interval, interval_count } = getStripeIntervalConfig(effectiveBillingPeriod, effectiveCustomMonths);
         
         const stripePrice = await stripe.prices.create({
@@ -433,25 +390,15 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
               .commit()
           : sanityClient.patch(subscription._id).set({ stripePriceId: stripePrice.id }).commit();
         
-        updatePromise
-          .then(() => {
-            console.log('✅ Updated Sanity with Stripe price ID');
-          })
-          .catch(error => {
-            console.warn('Failed to update Sanity with Stripe price ID:', error);
-          });
+        updatePromise.catch(() => {});
       }
     }
 
-    console.log('🏗️ Using Stripe price ID:', stripePriceId);
-
     // Create Stripe checkout session
-    console.log('🛒 Creating Stripe checkout session...');
     
     // Get base URL
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL;
     if (!baseUrl) {
-      console.log('❌ Missing base URL environment variable');
       return NextResponse.json(
         { success: false, error: 'Server configuration error: missing base URL' },
         { status: 500 }
@@ -486,13 +433,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
     };
     
     const session = await stripe.checkout.sessions.create(sessionParams);
-    console.log(`✅ Created checkout session: ${session.id}`);
     
     // Create pending user subscription records
     const startDate = new Date().toISOString();
-    
-    // Create Sanity record
-    console.log('💾 Creating Sanity user subscription record...');
     const userSubscription = {
       _type: 'userSubscription',
       userId,
@@ -519,10 +462,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
     };
     
     const sanityResponse = await sanityClient.create(userSubscription);
-    console.log(`✅ Created Sanity user subscription: ${sanityResponse._id}`);
-    
-    // Create Supabase record - Clean subscription data only
-    console.log('💾 Creating Supabase user subscription record...');
     const supabaseSubscription = {
       id: uuidv4(),
       user_id: userId,
@@ -552,23 +491,15 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
     
     const { error: insertError } = await supabase.from('user_subscriptions').insert(supabaseSubscription);
     if (insertError) {
-      console.error("❌ Supabase insertion error:", insertError);
       throw new Error(`Failed to create Supabase record: ${insertError.message}`);
     }
-    
-    console.log(`✅ Created Supabase subscription record`);
     
     // Increment coupon usage if applied (non-blocking)
     if (appliedCoupon) {
       sanityClient.patch(appliedCoupon._id)
         .inc({ usageCount: 1 })
         .commit()
-        .then(() => {
-          console.log(`✅ Incremented usage count for coupon ${appliedCoupon.code}`);
-        })
-        .catch(error => {
-          console.warn('Failed to increment coupon usage:', error);
-        });
+        .catch(() => {});
     }
     
     // Prepare response metadata
@@ -586,8 +517,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
       }),
     };
 
-    const totalTime = Date.now() - startTime;
-    console.log(`🎉 Subscription purchase completed in ${totalTime}ms`);
 
     const checkoutUrl = session.url || undefined;
     
@@ -600,12 +529,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
 
   } catch (error: unknown) {
     const errorMessage = createSafeErrorMessage(error);
-    console.error("💥 Error creating subscription:", error);
-    
-    // Log the full error for debugging
-    if (error instanceof Error) {
-      console.error("Error stack:", error.stack);
-    }
     
     return NextResponse.json(
       { 
@@ -719,7 +642,6 @@ async function validateAndApplyCoupon(
     };
 
   } catch (error) {
-    console.error('Error validating coupon:', error);
     return { isValid: false, error: 'Error validating coupon' };
   }
 }

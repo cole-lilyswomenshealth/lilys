@@ -94,7 +94,6 @@ export async function POST(req: Request) {
       // Store the Sanity ID
       sanityId = data.orderId;
       
-      console.log(`Looking up order by Sanity ID: ${sanityId}`);
       
       // Look up the order in Supabase by Sanity ID
       const { data: orderData, error: orderFetchError } = await supabase
@@ -104,12 +103,8 @@ export async function POST(req: Request) {
         .single();
       
       if (orderFetchError || !orderData) {
-        console.error(`Order not found by Sanity ID: ${data.orderId}`);
         
         // Let's log the error details for debugging
-        if (orderFetchError) {
-          console.error(`Error details: ${JSON.stringify(orderFetchError)}`);
-        }
         
         return NextResponse.json(
           { success: false, error: `Order not found by Sanity ID: ${data.orderId}` },
@@ -120,7 +115,6 @@ export async function POST(req: Request) {
       supabaseOrderData = orderData as SupabaseOrder;
     } else {
       // Direct lookup by Supabase ID
-      console.log(`Looking up order by Supabase ID: ${data.orderId}`);
       
       const { data: orderData, error: orderFetchError } = await supabase
         .from('orders')
@@ -186,16 +180,13 @@ export async function POST(req: Request) {
       .eq('id', supabaseOrderData.id);
     
     if (updateError) {
-      console.error("Failed to update order with payment method in Supabase:", updateError);
       // Continue anyway as this is not critical
     } else {
-      console.log(`✅ Updated Supabase order ${supabaseOrderData.id} payment method to stripe`);
     }
     
     // If we have a Sanity ID, update Sanity order too
     if (sanityId) {
       try {
-        console.log(`Updating Sanity order ${sanityId} payment method`);
         
         // Update payment method in Sanity
         await sanityClient
@@ -206,15 +197,11 @@ export async function POST(req: Request) {
           })
           .commit({visibility: 'sync'});
           
-        console.log(`✅ Updated Sanity order ${sanityId} payment method to stripe`);
         
         // Verify the update
         const updatedDoc = await sanityClient.getDocument(sanityId) as SanityDocument;
-        console.log(`Sanity order payment method after update: ${updatedDoc.paymentMethod}`);
       } catch (error) {
         const sanityError = error as ErrorResponse;
-        console.error("Failed to update Sanity order payment method:", sanityError);
-        console.error(sanityError);
         // Continue anyway as this is not critical
       }
     }
@@ -247,16 +234,13 @@ export async function POST(req: Request) {
       .eq('id', supabaseOrderData.id);
     
     if (sessionUpdateError) {
-      console.error("Failed to update order with Stripe session ID in Supabase:", sessionUpdateError);
       // Continue anyway as this is not critical
     } else {
-      console.log(`✅ Updated Supabase order with session ID: ${session.id}`);
     }
     
     // Update Sanity with session ID
     if (sanityId) {
       try {
-        console.log(`Updating Sanity order ${sanityId} with session ID: ${session.id}`);
         
         await sanityClient
           .patch(sanityId)
@@ -265,20 +249,15 @@ export async function POST(req: Request) {
           })
           .commit({visibility: 'sync'});
           
-        console.log(`✅ Updated Sanity order with session ID`);
         
         // Verify the update
         const updatedDoc = await sanityClient.getDocument(sanityId) as SanityDocument;
-        console.log(`Sanity order session ID after update: ${updatedDoc.stripeSessionId}`);
       } catch (error) {
         const sanityError = error as ErrorResponse;
-        console.error("Failed to update Sanity order with session ID:", sanityError);
-        console.error(sanityError);
         // Continue anyway as this is not critical
       }
     }
     
-    console.log(`✅ Created Stripe session ${session.id} for order ${supabaseOrderData.id}`);
     
     return NextResponse.json({
       success: true,
@@ -291,7 +270,6 @@ export async function POST(req: Request) {
       ? { message: error.message || "Failed to create payment session" }
       : { message: "Unknown error occurred" };
       
-    console.error("Error creating Stripe payment session:", errorResponse);
     
     return NextResponse.json(
       { 

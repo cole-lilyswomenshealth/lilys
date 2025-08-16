@@ -16,8 +16,6 @@ import {
 export async function handleSubscriptionUpdated(
   subscription: Stripe.Subscription
 ): Promise<NextResponse> {
-  console.log(`Processing subscription update for ${subscription.id}`);
-  console.log(`Subscription status: ${subscription.status}`);
   
   try {
     // Map Stripe status to our status
@@ -62,7 +60,6 @@ export async function handleSubscriptionUpdated(
       message: `Subscription updated to status: ${status}` 
     });
   } catch (error) {
-    console.error("Error processing subscription update:", error);
     return NextResponse.json(
       { 
         success: false, 
@@ -79,7 +76,6 @@ export async function handleSubscriptionUpdated(
 export async function handleSubscriptionDeleted(
   subscription: Stripe.Subscription
 ): Promise<NextResponse> {
-  console.log(`Processing subscription deletion for ${subscription.id}`);
   
   try {
     // Find the user subscription in Supabase
@@ -125,7 +121,6 @@ export async function handleSubscriptionDeleted(
       message: "Subscription cancelled successfully" 
     });
   } catch (error) {
-    console.error("Error processing subscription deletion:", error);
     return NextResponse.json(
       { 
         success: false, 

@@ -53,7 +53,6 @@ export async function GET(request: NextRequest): Promise<NextResponse<UserDataRe
       );
     }
 
-    console.log('Fetching user data for:', user.email);
 
     // FIXED: Include meeting_url and meeting_uuid in the select query
     const { data: userData, error: fetchError } = await supabaseAdmin
@@ -65,7 +64,6 @@ export async function GET(request: NextRequest): Promise<NextResponse<UserDataRe
     if (fetchError) {
       // If no record found, return success with no data
       if (fetchError.code === 'PGRST116') {
-        console.log('No user data found for:', user.email);
         return NextResponse.json(
           { success: true, data: undefined },
           { headers: securityHeaders }
@@ -82,7 +80,6 @@ export async function GET(request: NextRequest): Promise<NextResponse<UserDataRe
       );
     }
 
-    console.log('User data found for:', user.email, 'Submission count:', userData.submission_count, 'Meeting URL:', userData.meeting_url ? 'Available' : 'Not available');
 
     // FIXED: Return user data including meeting details
     return NextResponse.json(
@@ -105,7 +102,6 @@ export async function GET(request: NextRequest): Promise<NextResponse<UserDataRe
     );
 
   } catch (error) {
-    console.error('Unexpected error in user data fetch:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { 

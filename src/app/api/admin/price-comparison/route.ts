@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { client as sanityClient } from '@/sanity/lib/client';
 import { groq } from 'next-sanity';
+import { isAdminUser } from '@/utils/adminAuthServer';
 
 // Initialize Stripe with proper error handling
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -168,8 +169,13 @@ function createComparisonRow(
   };
 }
 
-export async function GET(): Promise<NextResponse<PriceComparisonResponse>> {
+export async function GET(req: Request): Promise<NextResponse<PriceComparisonResponse>> {
   try {
+    // Verify admin authentication
+    const authResult = await isAdminUser(req);
+    if (!authResult.isAdmin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     // Fetch all active subscriptions from Sanity
     const subscriptions = await sanityClient.fetch<SanitySubscription[]>(

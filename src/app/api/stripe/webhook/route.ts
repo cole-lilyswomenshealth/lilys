@@ -48,13 +48,11 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SECRET
     );
 
-    console.log(`⚡ Received Stripe webhook event: ${event.type}`);
 
     // Handle the event based on its type
     switch (event.type) {
       case 'checkout.session.completed':
         // Checkout sessions are no longer used after product removal
-        console.log(`Ignoring checkout.session.completed event (products removed): ${event.data.object.id}`);
         return NextResponse.json({ received: true });
       
       case 'invoice.payment_succeeded':
@@ -77,12 +75,10 @@ export async function POST(req: Request) {
       
       default:
         // Handle unimplemented event types
-        console.log(`Ignoring unhandled event type: ${event.type}`);
         return NextResponse.json({ received: true });
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error(`❌ Error processing webhook: ${errorMessage}`);
     return NextResponse.json({ error: "Webhook error: " + errorMessage }, { status: 400 });
   }
 }

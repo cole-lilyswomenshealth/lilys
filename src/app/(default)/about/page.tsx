@@ -152,11 +152,11 @@ export default function AboutPage(): React.ReactElement {
               {isSpanish ? (
                 <>
                   <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                    En Lily's, tenemos la misión de hacer que la pérdida de peso médicamente guiada sea simple, solidaria y accesible para cada mujer.
+                    En Lily&apos;s, tenemos la misión de hacer que la pérdida de peso médicamente guiada sea simple, solidaria y accesible para cada mujer.
                   </p>
                   
                   <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                    Entendemos que el cambio duradero comienza con apoyo confiable, por eso hemos construido una plataforma fácil de usar que conecta a las mujeres con médicos licenciados a través de consultas seguras de telemedicina. Aunque Lily's no brinda atención médica directamente, trabajamos de la mano con <strong className="text-[#E63946]">Qualiphy</strong>, un proveedor respetable de telemedicina, para asegurar que recibas atención experta adaptada a tus objetivos.
+                    Entendemos que el cambio duradero comienza con apoyo confiable, por eso hemos construido una plataforma fácil de usar que conecta a las mujeres con médicos licenciados a través de consultas seguras de telemedicina. Aunque Lily&apos;s no brinda atención médica directamente, trabajamos de la mano con <strong className="text-[#E63946]">Qualiphy</strong>, un proveedor respetable de telemedicina, para asegurar que recibas atención experta adaptada a tus objetivos.
                   </p>
                   
                   <p className="text-lg text-gray-700 leading-relaxed mb-6">
@@ -164,17 +164,17 @@ export default function AboutPage(): React.ReactElement {
                   </p>
                   
                   <p className="text-lg text-gray-700 leading-relaxed mb-8">
-                    Estamos aquí para guiarte en cada paso del camino, desde el descubrimiento hasta los resultados. En Lily's, no solo estás comenzando un programa—estás iniciando un viaje con el apoyo adecuado detrás de ti.
+                    Estamos aquí para guiarte en cada paso del camino, desde el descubrimiento hasta los resultados. En Lily&apos;s, no solo estás comenzando un programa—estás iniciando un viaje con el apoyo adecuado detrás de ti.
                   </p>
                 </>
               ) : (
                 <>
                   <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                    At Lily's, we're on a mission to make medically guided weight loss simple, supportive, and accessible for every woman.
+                    At Lily&apos;s, we&apos;re on a mission to make medically guided weight loss simple, supportive, and accessible for every woman.
                   </p>
                   
                   <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                    We understand that lasting change starts with trusted support, which is why we've built an easy-to-use platform that connects women with licensed doctors through secure telehealth consultations. While Lily's doesn't provide medical care directly, we work hand-in-hand with <strong className="text-[#E63946]">Qualiphy</strong>, a reputable telehealth provider, to ensure you receive expert care tailored to your goals.
+                    We understand that lasting change starts with trusted support, which is why we&apos;ve built an easy-to-use platform that connects women with licensed doctors through secure telehealth consultations. While Lily&apos;s doesn&apos;t provide medical care directly, we work hand-in-hand with <strong className="text-[#E63946]">Qualiphy</strong>, a reputable telehealth provider, to ensure you receive expert care tailored to your goals.
                   </p>
                   
                   <p className="text-lg text-gray-700 leading-relaxed mb-6">
@@ -182,7 +182,7 @@ export default function AboutPage(): React.ReactElement {
                   </p>
                   
                   <p className="text-lg text-gray-700 leading-relaxed mb-8">
-                    We're here to guide you every step of the way, from discovery to results. At Lily's, you're not just starting a program—you're beginning a journey with the right support behind you.
+                    We&apos;re here to guide you every step of the way, from discovery to results. At Lily&apos;s, you&apos;re not just starting a program—you&apos;re beginning a journey with the right support behind you.
                   </p>
                 </>
               )}
