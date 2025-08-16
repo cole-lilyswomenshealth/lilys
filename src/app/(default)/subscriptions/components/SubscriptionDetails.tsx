@@ -227,6 +227,11 @@ export default function SubscriptionDetails({ subscription }: SubscriptionDetail
     if (!hasTrackedInitialView && typeof window !== 'undefined' && subscription?.slug?.current) {
       try {
         const currentPrice = selectedVariant ? selectedVariant.price : subscription.price;
+        
+        // DEBUG: Log URL being sent to Facebook
+        console.log('🔍 DEBUG: Tracking URL:', window.location.href);
+        console.log('🔍 DEBUG: Window location pathname:', window.location.pathname);
+        
         trackSubscriptionView(
           window.location.href,
           subscription.slug.current,
@@ -248,6 +253,9 @@ export default function SubscriptionDetails({ subscription }: SubscriptionDetail
           ? `${selectedVariant.dosageAmount}${selectedVariant.dosageUnit}`
           : undefined;
           
+        // DEBUG: Log URL being sent to Facebook
+        console.log('🔍 DEBUG: Variant Selection URL:', window.location.href);
+        
         trackVariantSelection(
           window.location.href,
           subscription.slug.current,
