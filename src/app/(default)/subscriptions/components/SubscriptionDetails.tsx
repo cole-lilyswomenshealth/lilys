@@ -99,14 +99,14 @@ export default function SubscriptionDetails({ subscription }: SubscriptionDetail
   const [selectedBase, setSelectedBase] = useState<boolean>(false);
   const [appliedCouponCode, setAppliedCouponCode] = useState<string>('');
   const [discountedPrice, setDiscountedPrice] = useState<number | null>(null);
-  const [discountAmount, setDiscountAmount] = useState<number>(0);
+  const [_discountAmount, setDiscountAmount] = useState<number>(0);
   const [purchaseError, setPurchaseError] = useState<string>('');
   const [hasTrackedInitialView, setHasTrackedInitialView] = useState<boolean>(false);
 
   // Hooks with error boundaries
-  const { t, currentLanguage } = useTranslations();
+  const { currentLanguage } = useTranslations();
   const { purchaseSubscription, isLoading, error: purchaseHookError, clearError } = useSubscriptionPurchase();
-  const { user, isAuthenticated, checkSession } = useAuthStore();
+  const { isAuthenticated, checkSession } = useAuthStore();
 
   // Enterprise validation check
   useEffect(() => {
@@ -220,7 +220,7 @@ export default function SubscriptionDetails({ subscription }: SubscriptionDetail
       setSelectedBase(true);
       setSelectedVariant(null);
     }
-  }, [subscription, captureError]);
+  }, [subscription, selectedBase, captureError]);
 
   // Track subscription page view with enterprise-level error handling
   useEffect(() => {
@@ -407,6 +407,7 @@ export default function SubscriptionDetails({ subscription }: SubscriptionDetail
     isLoading,
     isAuthenticated,
     subscription._id,
+    subscription.hasVariants,
     selectedVariant,
     selectedBase,
     appliedCouponCode,
@@ -443,7 +444,7 @@ export default function SubscriptionDetails({ subscription }: SubscriptionDetail
             Subscription Temporarily Unavailable
           </h2>
           <p className="text-red-600 mb-4">
-            We're experiencing technical difficulties. Please try again later.
+            We&apos;re experiencing technical difficulties. Please try again later.
           </p>
           <button
             onClick={resetError}

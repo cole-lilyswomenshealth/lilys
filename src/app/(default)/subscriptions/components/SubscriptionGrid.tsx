@@ -1,22 +1,21 @@
 // src/app/(default)/subscriptions/components/SubscriptionGrid.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import SubscriptionCard from './SubscriptionCard';
-import { SubscriptionsData, Subscription, SubscriptionCategory } from '@/types/subscription-page';
+import { SubscriptionsData, SubscriptionCategory } from '@/types/subscription-page';
 import useTranslations from '@/hooks/useTranslations';
 
-interface SubscriptionGridProps extends SubscriptionsData {}
+type SubscriptionGridProps = SubscriptionsData;
 
 const SubscriptionGrid: React.FC<SubscriptionGridProps> = ({
   categories,
   subscriptionsByCategory,
   uncategorizedSubscriptions,
-  featuredSubscriptions,
   allSubscriptions,
   error
 }) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, _setLoading] = useState(false);
   const { t, currentLanguage } = useTranslations();
 
   // Get localized category title

@@ -124,4 +124,4 @@
 
 ---
 
-*This audit report should be treated as confidential and shared only with authorized personnel. The major security vulnerabilities have been resolved, with remaining issues being lower priority systemic improvements.*
+*This audit report should be treated as confidential and shared only with authorized personnel. The major security vulnerabilities have been resolved, with remaining issues being lower priority systemic improvements.*i

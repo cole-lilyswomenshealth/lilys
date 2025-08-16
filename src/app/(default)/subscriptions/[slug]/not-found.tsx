@@ -33,7 +33,7 @@ export default function SubscriptionNotFound() {
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Subscription Not Found</h1>
           
           <p className="text-gray-600 mb-8">
-            We couldn't find the subscription plan you're looking for. It may have been removed or the URL might be incorrect.
+            We couldn&apos;t find the subscription plan you&apos;re looking for. It may have been removed or the URL might be incorrect.
           </p>
           
           <Link 

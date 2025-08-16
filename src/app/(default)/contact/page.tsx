@@ -1,7 +1,6 @@
 // src/app/(default)/contact/page.tsx
 'use client';
 
-import { Metadata } from 'next';
 import ContactForm from '@/components/ContactForm';
 import PageHeader from '@/components/PageHeader';
 import { useTranslations } from '@/hooks/useTranslations';
