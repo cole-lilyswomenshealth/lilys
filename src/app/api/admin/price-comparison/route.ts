@@ -174,7 +174,10 @@ export async function GET(req: Request): Promise<NextResponse<PriceComparisonRes
     // Verify admin authentication
     const authResult = await isAdminUser(req);
     if (!authResult.isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, rows: [], error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     // Fetch all active subscriptions from Sanity
