@@ -81,9 +81,6 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
               const finalPrice = discountedPrice || getCurrentPrice();
               const selectedVariantTitle = selectedVariant?.title;
               
-              // DEBUG: Log URL being sent to Facebook
-              console.log('🔍 DEBUG: Purchase Initiation URL:', window.location.href);
-              
               trackPurchaseInitiation(
                 window.location.href,
                 subscription.slug.current,
