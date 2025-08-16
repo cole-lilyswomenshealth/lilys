@@ -10,7 +10,32 @@
 
 ## Debug Modifications Added
 
-### 1. SubscriptionDetails.tsx Debug Logging
+### 1. Server-Side API Debug Logging
+
+**File**: `src/app/api/facebook/track-event/route.ts`
+
+**Location**: Lines 140-142, 145, 153, 208-211, 215, 221
+
+```typescript
+// DEBUG: Log incoming request data
+console.log('🔍 DEBUG: Incoming Request Body:', JSON.stringify(body, null, 2));
+
+// DEBUG: Validation errors
+console.log('🔍 DEBUG: Validation Error:', validation.error);
+
+// DEBUG: Validated data
+console.log('🔍 DEBUG: Validated Event Data:', JSON.stringify(eventData, null, 2));
+
+// DEBUG: Log what we're sending to Facebook
+console.log('🔍 DEBUG: Facebook API Payload:', JSON.stringify(payload, null, 2));
+console.log('🔍 DEBUG: Custom Data Keys:', Object.keys(payload.data[0].custom_data || {}));
+
+// DEBUG: Facebook API responses
+console.log('🔍 DEBUG: Facebook API Error:', result.error);
+console.log('🔍 DEBUG: Facebook API Success - Event sent');
+```
+
+### 2. SubscriptionDetails.tsx Debug Logging
 
 **File**: `src/app/(default)/subscriptions/components/SubscriptionDetails.tsx`
 
@@ -100,6 +125,7 @@ trackPurchaseInitiation(
 - The corresponding debug logging statements
 
 **Files to clean:**
+- `src/app/api/facebook/track-event/route.ts` 
 - `src/app/(default)/subscriptions/components/SubscriptionDetails.tsx`
 - `src/app/(default)/subscriptions/components/PurchaseSection.tsx`
 
@@ -107,6 +133,14 @@ trackPurchaseInitiation(
 ```bash
 grep -r "🔍 DEBUG" src/
 ```
+
+**Lines to remove in route.ts:**
+- Lines 140-142: Incoming request logging
+- Line 145: Validation error logging  
+- Line 153: Validated data logging
+- Lines 208-211: Payload and custom data logging
+- Line 215: Error response logging
+- Line 221: Success response logging
 
 ---
 

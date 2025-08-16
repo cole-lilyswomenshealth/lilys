@@ -137,8 +137,12 @@ export async function POST(req: NextRequest): Promise<NextResponse<FacebookEvent
 
     const body = await req.json();
     
+    // DEBUG: Log incoming request data
+    console.log('🔍 DEBUG: Incoming Request Body:', JSON.stringify(body, null, 2));
+    
     const validation = validateRequest(facebookEventSchema, body);
     if (!validation.success) {
+      console.log('🔍 DEBUG: Validation Error:', validation.error);
       return NextResponse.json(
         { success: false, error: validation.error },
         { status: 400 }
@@ -146,6 +150,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<FacebookEvent
     }
 
     const eventData = validation.data;
+    console.log('🔍 DEBUG: Validated Event Data:', JSON.stringify(eventData, null, 2));
     
     const forwarded = req.headers.get('x-forwarded-for');
     const ipAddress = forwarded ? forwarded.split(',')[0].trim() : 
@@ -205,13 +210,20 @@ export async function POST(req: NextRequest): Promise<NextResponse<FacebookEvent
       }]
     };
 
+    // DEBUG: Log what we're sending to Facebook
+    console.log('🔍 DEBUG: Facebook API Payload:', JSON.stringify(payload, null, 2));
+    console.log('🔍 DEBUG: Custom Data Keys:', Object.keys(payload.data[0].custom_data || {}));
+    
     const result = await sendToFacebookAPI(payload);
 
     if (!result.success) {
+      console.log('🔍 DEBUG: Facebook API Error:', result.error);
       return NextResponse.json(
         { success: false, error: result.error || 'Failed to send event' },
         { status: 500 }
       );
+    } else {
+      console.log('🔍 DEBUG: Facebook API Success - Event sent');
     }
 
     return NextResponse.json({ success: true });
