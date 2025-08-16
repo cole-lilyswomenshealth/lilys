@@ -69,7 +69,6 @@ export async function POST(req: NextRequest) {
     // Set immediate cancellation as default
     const isImmediateCancel = validatedData.immediate !== false;
     
-    console.log(`${isImmediateCancel ? 'Immediately cancelling' : 'Scheduling cancellation for'} subscription: ${validatedData.subscriptionId}`);
     
     // First, try to find the subscription in our database using the subscriptionId
     // Check if it's a Supabase ID (UUID format) or Stripe ID
@@ -141,7 +140,6 @@ export async function POST(req: NextRequest) {
         if (isImmediateCancel) {
           // Cancel immediately - subscription ends now
           subscription = await stripe.subscriptions.cancel(stripeSubscriptionId);
-          console.log('✅ Cancelled subscription immediately in Stripe');
         } else {
           // Cancel at period end - subscription remains active until period ends
           subscription = await stripe.subscriptions.update(stripeSubscriptionId, {
@@ -150,14 +148,11 @@ export async function POST(req: NextRequest) {
           targetStatus = 'cancelling';
           isActive = true; // Keep active until period ends
           endDate = new Date(subscription.current_period_end * 1000).toISOString();
-          console.log('✅ Scheduled subscription cancellation in Stripe');
         }
       } catch (stripeError) {
-        console.error("Stripe error:", stripeError);
         
         // If subscription doesn't exist in Stripe, proceed with local cancellation
         if (stripeError instanceof Stripe.errors.StripeError && stripeError.code === 'resource_missing') {
-          console.log("Subscription not found in Stripe, proceeding with local cancellation");
           subscription = null;
         } else {
           throw new Error(`Stripe error: ${stripeError instanceof Error ? stripeError.message : 'Unknown error'}`);
@@ -187,11 +182,9 @@ export async function POST(req: NextRequest) {
       .eq('id', userSubscriptionData.id);
     
     if (updateError) {
-      console.error("Error updating subscription in Supabase:", updateError);
       throw new Error(`Failed to update subscription: ${updateError.message}`);
     }
     
-    console.log(`✅ Updated Supabase subscription status to: ${targetStatus}`);
     
     // If we have a Sanity ID, update Sanity too
     if (userSubscriptionData.sanity_id) {
@@ -206,9 +199,7 @@ export async function POST(req: NextRequest) {
           })
           .commit();
         
-        console.log(`✅ Updated Sanity subscription status to: ${targetStatus}`);
       } catch (error) {
-        console.error("Error updating subscription in Sanity:", error);
         // Don't throw here, Supabase is our source of truth
       }
     }
@@ -225,7 +216,6 @@ export async function POST(req: NextRequest) {
     });
     
   } catch (error) {
-    console.error("Error cancelling subscription:", error);
     return NextResponse.json(
       { 
         success: false, 

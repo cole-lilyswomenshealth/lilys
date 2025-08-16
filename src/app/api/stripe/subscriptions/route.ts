@@ -125,7 +125,6 @@ function getStripeIntervalConfig(billingPeriod: string, customBillingPeriodMonth
       } else if (months % 12 === 0) {
         return { interval: 'year', interval_count: months / 12 };
       } else {
-        console.warn(`Billing period of ${months} months exceeds Stripe's limit. Capping at 12 months.`);
         return { interval: 'month', interval_count: 12 };
       }
     default:

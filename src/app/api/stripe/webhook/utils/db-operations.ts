@@ -21,11 +21,9 @@ export async function updateSupabaseSubscription(
     .eq(matchField, id);
 
   if (error) {
-    console.error(`Error updating Supabase subscription by ${matchField}:`, error);
     throw new Error(`Failed to update subscription in Supabase: ${error.message}`);
   }
   
-  console.log(`✅ Updated Supabase subscription (${matchField}: ${id})`);
 }
 
 /**
@@ -41,9 +39,7 @@ export async function updateSanitySubscription(
       .set(data)
       .commit();
       
-    console.log(`✅ Updated Sanity subscription: ${id}`);
   } catch (error) {
-    console.error("Error updating Sanity subscription:", error);
     throw new Error(`Failed to update subscription in Sanity: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
@@ -62,11 +58,9 @@ export async function updateSupabaseOrder(
     .eq(matchField, id);
 
   if (error) {
-    console.error(`Error updating Supabase order by ${matchField}:`, error);
     throw new Error(`Failed to update order in Supabase: ${error.message}`);
   }
   
-  console.log(`✅ Updated Supabase order (${matchField}: ${id})`);
 }
 
 /**
@@ -82,9 +76,7 @@ export async function updateSanityOrder(
       .set(data)
       .commit({visibility: 'sync'});
       
-    console.log(`✅ Updated Sanity order: ${id}`);
   } catch (error) {
-    console.error("Error updating Sanity order:", error);
     throw new Error(`Failed to update order in Sanity: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
@@ -103,7 +95,6 @@ export async function getSupabaseSubscription(
     .single();
   
   if (error) {
-    console.error(`Error fetching subscription by ${field}:`, error);
     throw new Error(`Failed to fetch subscription: ${error.message}`);
   }
   

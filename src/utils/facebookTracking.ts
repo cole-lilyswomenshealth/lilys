@@ -42,10 +42,7 @@ async function trackFacebookEvent(eventData: FacebookEventData): Promise<void> {
       body: JSON.stringify(eventData),
     });
   } catch (error) {
-    // Silently handle tracking errors in production
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('Facebook tracking failed:', error);
-    }
+    // Silently handle tracking errors
   }
 }
 

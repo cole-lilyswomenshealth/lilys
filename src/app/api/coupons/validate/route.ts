@@ -238,7 +238,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<ValidateCoupo
     });
     
   } catch (error) {
-    console.error("Error validating coupon:", error);
     return NextResponse.json(
       { 
         success: false, 

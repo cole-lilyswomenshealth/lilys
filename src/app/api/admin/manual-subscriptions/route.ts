@@ -59,7 +59,6 @@ export async function GET(req: Request) {
     });
 
   } catch (error) {
-    console.error('Error fetching manual subscriptions:', error);
     return NextResponse.json(
       { 
         success: false, 

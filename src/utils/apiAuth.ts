@@ -20,7 +20,6 @@ export async function getAuthenticatedUser() {
     
     return user;
   } catch (error) {
-    console.error('Error getting authenticated user:', error);
     return null;
   }
 }
@@ -49,7 +48,6 @@ export async function verifyAuthenticatedRequest(req: NextRequest) {
     
     return { user, errorResponse: null };
   } catch (error) {
-    console.error('Error verifying authenticated request:', error);
     return {
       user: null,
       errorResponse: NextResponse.json(

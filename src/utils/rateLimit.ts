@@ -30,7 +30,6 @@ async function initRedis() {
     const redisToken = process.env.KV_REST_API_TOKEN;
     
     if (!redisUrl) {
-      console.warn('Redis URL not configured, using in-memory fallback');
       return null;
     }
     
@@ -45,14 +44,11 @@ async function initRedis() {
       
       // Test connection
       await redisClient.ping();
-      console.log('✅ Redis connected successfully');
       return redisClient;
     } catch (importError) {
-      console.warn('❌ Redis package not installed, using in-memory fallback');
       return null;
     }
   } catch (error) {
-    console.warn('❌ Redis connection failed, using fallback:', error);
     return null;
   }
 }
@@ -107,7 +103,6 @@ async function checkRateLimit(
         resetTime: actualResetTime,
       };
     } catch (error) {
-      console.warn('Redis rate limit check failed, using fallback:', error);
       // Fall through to memory store
     }
   }

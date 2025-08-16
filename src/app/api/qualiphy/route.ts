@@ -141,7 +141,6 @@ async function getExamPosId(examId: number, state: string): Promise<number> {
     return dose1Package?.exam_pos_id || packages[0]?.exam_pos_id;
     
   } catch (error) {
-    console.error('Error fetching Qualiphy packages:', error);
     // Fallback to known dose 1 exam_pos_ids
     return examId === 2413 ? 9608 : 9680;
   }
@@ -184,7 +183,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .single();
 
     if (fetchError && fetchError.code !== 'PGRST116') {
-      console.error('Database error when checking user:', fetchError);
       return NextResponse.json(
         { success: false, error: 'Database error occurred' },
         { status: 500 }
@@ -205,7 +203,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Validate Qualiphy API key
     if (!process.env.QUALIPHY_API_KEY) {
-      console.error('QUALIPHY_API_KEY not configured');
       return NextResponse.json(
         { success: false, error: 'Scheduling service not configured' },
         { status: 500 }
@@ -251,14 +248,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
         qualiphyData = JSON.parse(responseText);
       } else {
-        console.error('Non-JSON response from Qualiphy:', responseText);
         return NextResponse.json(
           { success: false, error: 'Invalid response from scheduling service' },
           { status: 502 }
         );
       }
     } catch (parseError) {
-      console.error('Failed to parse Qualiphy response:', parseError);
       return NextResponse.json(
         { success: false, error: 'Invalid response format from scheduling service' },
         { status: 502 }
@@ -293,7 +288,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           .single();
 
         if (updateError) {
-          console.error('Failed to update user data:', updateError);
+          // Handle update error silently
         }
       } else {
         const { data: insertData, error: insertError } = await supabaseAdmin
@@ -317,7 +312,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           .single();
 
         if (insertError) {
-          console.error('Failed to insert user data:', insertError);
+          // Handle insert error silently
         }
       }
 
@@ -343,7 +338,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         errorMessage = 'Scheduling service is temporarily unavailable';
       }
       
-      console.error('Qualiphy API error:', errorMessage, qualiphyData);
       
       return NextResponse.json(
         { success: false, error: errorMessage },
@@ -352,7 +346,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
   } catch (error: unknown) {
-    console.error('Unexpected error in Qualiphy API:', error);
     return NextResponse.json(
       { 
         success: false, 

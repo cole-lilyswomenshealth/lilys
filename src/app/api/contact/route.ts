@@ -319,10 +319,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Log successful reCAPTCHA verification for monitoring
-        console.log(`Contact form reCAPTCHA verified with score: ${recaptchaResult.score}`);
       } catch (recaptchaError) {
-        console.error('reCAPTCHA verification error:', recaptchaError);
         return NextResponse.json(
           { success: false, error: 'Security verification failed. Please try again.' },
           { status: 400 }
@@ -345,7 +342,6 @@ export async function POST(request: NextRequest) {
     });
 
     if (adminEmailResult.error) {
-      console.error('Failed to send admin email:', adminEmailResult.error);
       return NextResponse.json(
         { success: false, error: 'Failed to send message. Please try again later.' },
         { status: 500 }
@@ -360,7 +356,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Contact form error:', error);
     // Generic error response without exposing internal details
     return NextResponse.json(
       { success: false, error: 'An unexpected error occurred. Please try again later.' },

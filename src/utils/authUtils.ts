@@ -34,7 +34,6 @@ export function getTokenExpiration(token: string | null): number | null {
     
     return null;
   } catch (error) {
-    console.error('Error parsing JWT token:', error);
     return null;
   }
 }
@@ -70,7 +69,6 @@ export function saveAuthDataToStorage(accessToken: string, refreshToken: string,
     sessionStorage.setItem('auth_user_id', userId);
     sessionStorage.setItem('auth_last_check', Date.now().toString());
   } catch (error) {
-    console.error('Error saving auth data to storage:', error);
   }
 }
 
@@ -84,7 +82,6 @@ export function clearAuthDataFromStorage(): void {
     sessionStorage.removeItem('auth_user_id');
     sessionStorage.removeItem('auth_last_check');
   } catch (error) {
-    console.error('Error clearing auth data from storage:', error);
   }
 }
 
@@ -107,7 +104,6 @@ export function useEnsureAuthenticated() {
       const { isAuthenticated: isNowAuthenticated } = useAuthStore.getState();
       return isNowAuthenticated;
     } catch (error) {
-      console.error('Error ensuring authentication:', error);
       return false;
     }
   };
@@ -124,7 +120,6 @@ export function createCsrfToken(): string {
   try {
     sessionStorage.setItem('csrf_token', token);
   } catch (error) {
-    console.error('Error saving CSRF token:', error);
   }
   
   return token;
@@ -140,7 +135,6 @@ export function verifyCsrfToken(token: string): boolean {
     const storedToken = sessionStorage.getItem('csrf_token');
     return token === storedToken;
   } catch (error) {
-    console.error('Error verifying CSRF token:', error);
     return false;
   }
 }
@@ -154,7 +148,6 @@ export async function handleAuthRedirect(returnPath: string = '/') {
   const { data } = await supabase.auth.getSession();
   
   if (!data.session) {
-    console.log('No active session, redirecting to login');
     window.location.href = `/login?returnUrl=${encodeURIComponent(returnPath)}`;
     return false;
   }

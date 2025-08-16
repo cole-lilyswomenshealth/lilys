@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
     const user = await getAuthenticatedUser();
     
     if (!user) {
-      console.log("Authentication required");
       return NextResponse.json(
         { success: false, error: "Authentication required" },
         { status: 401 }
@@ -63,7 +62,6 @@ export async function POST(req: NextRequest) {
     
     // Validate user ID is provided
     if (!data.userId) {
-      console.log("User ID is required");
       return NextResponse.json(
         { success: false, error: "User ID is required" },
         { status: 400 }
@@ -72,14 +70,12 @@ export async function POST(req: NextRequest) {
     
     // Security check: Ensure user can only access their own data
     if (data.userId !== user.id) {
-      console.log("Unauthorized access attempt: " + data.userId + " vs " + user.id);
       return NextResponse.json(
         { success: false, error: "Unauthorized: Cannot access other users' subscription data" },
         { status: 403 }
       );
     }
 
-    console.log(`Processing subscription sync for user ${data.userId}`);
     
     // Use admin client for subsequent operations to have full access
     // Fetch the user's subscriptions
@@ -96,7 +92,6 @@ export async function POST(req: NextRequest) {
     const { data: subscriptions, error: fetchError } = await query;
     
     if (fetchError) {
-      console.log("Failed to fetch subscriptions:", fetchError.message);
       return NextResponse.json(
         { success: false, error: `Failed to fetch subscriptions: ${fetchError.message}` },
         { status: 500 }
@@ -104,20 +99,17 @@ export async function POST(req: NextRequest) {
     }
     
     if (!subscriptions || subscriptions.length === 0) {
-      console.log("No subscriptions found");
       return NextResponse.json(
         { success: true, message: "No subscriptions found to sync", subscriptions: [] }
       );
     }
     
-    console.log(`Found ${subscriptions.length} subscriptions to sync`);
     
     // Process each subscription
     const results: SyncResult[] = await Promise.all(subscriptions.map(async (subscription) => {
       try {
         return await syncSubscriptionStatus(subscription);
       } catch (error) {
-        console.error(`Error syncing subscription ${subscription.id}:`, error);
         return {
           id: subscription.id,
           success: false,
@@ -142,7 +134,6 @@ export async function POST(req: NextRequest) {
     });
     
   } catch (error) {
-    console.error("Error in subscription sync:", error);
     return NextResponse.json(
       { 
         success: false, 
@@ -191,7 +182,6 @@ async function syncSubscriptionStatus(subscription: SubscriptionData): Promise<S
         };
       }
     } catch (error) {
-      console.error(`Error retrieving session ${subscription.stripe_session_id}:`, error);
       return {
         id: subscription.id,
         success: false,
@@ -251,7 +241,6 @@ async function syncSubscriptionStatus(subscription: SubscriptionData): Promise<S
           })
           .commit();
       } catch (sanityError) {
-        console.error(`Error updating Sanity for subscription ${subscription.id}:`, sanityError);
         return {
           id: subscription.id,
           success: true,
@@ -309,7 +298,6 @@ async function syncSubscriptionStatus(subscription: SubscriptionData): Promise<S
           newStatus: 'cancelled'
         };
       } catch (updateError) {
-        console.error(`Error updating deleted subscription ${subscription.id}:`, updateError);
         return {
           id: subscription.id,
           success: false,
@@ -319,7 +307,6 @@ async function syncSubscriptionStatus(subscription: SubscriptionData): Promise<S
     }
     
     // Handle other errors
-    console.error(`Error syncing subscription ${subscription.id}:`, error);
     return {
       id: subscription.id,
       success: false,

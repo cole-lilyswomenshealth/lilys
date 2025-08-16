@@ -112,7 +112,6 @@ export async function POST(req: Request) {
             })
             .commit();
         } catch (sanityError) {
-          console.error("Error updating Sanity:", sanityError);
           // Continue even if Sanity update fails
         }
       }
@@ -127,7 +126,6 @@ export async function POST(req: Request) {
       });
       
     } catch (stripeError) {
-      console.error("Error reactivating Stripe subscription:", stripeError);
       return NextResponse.json(
         { 
           success: false, 
@@ -140,7 +138,6 @@ export async function POST(req: Request) {
     }
     
   } catch (error) {
-    console.error("Error in reactivate subscription:", error);
     return NextResponse.json(
       { 
         success: false, 

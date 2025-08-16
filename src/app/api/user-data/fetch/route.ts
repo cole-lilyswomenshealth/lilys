@@ -70,7 +70,6 @@ export async function GET(request: NextRequest): Promise<NextResponse<UserDataRe
         );
       }
       
-      console.error('Error fetching user data:', fetchError);
       return NextResponse.json(
         { success: false, error: 'Failed to fetch user data' },
         { 

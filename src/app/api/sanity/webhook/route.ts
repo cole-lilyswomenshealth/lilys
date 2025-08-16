@@ -38,7 +38,6 @@ export async function POST(req: Request): Promise<NextResponse> {
     
     // Verify the webhook secret
     if (webhookSecret !== process.env.SANITY_WEBHOOK_SECRET) {
-      console.error('Invalid webhook secret');
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     
@@ -51,7 +50,6 @@ export async function POST(req: Request): Promise<NextResponse> {
     return NextResponse.json({ success: true, message: 'Webhook received but no action taken' });
     
   } catch (error) {
-    console.error('Error processing Sanity webhook:', error);
     return NextResponse.json(
       { 
         success: false, 
@@ -68,7 +66,6 @@ export async function POST(req: Request): Promise<NextResponse> {
 async function handleDocumentDeletion(payload: SanityWebhookPayload): Promise<NextResponse> {
   const { _id, _type } = payload;
   
-  console.log(`Processing deletion for Sanity ${_type} document with ID ${_id}`);
   
   try {
     // Map Sanity document types to Supabase tables
@@ -81,7 +78,6 @@ async function handleDocumentDeletion(payload: SanityWebhookPayload): Promise<Ne
     const table = typeToTableMap[_type];
     
     if (!table) {
-      console.log(`No matching Supabase table found for Sanity type ${_type}`);
       return NextResponse.json({ 
         success: false, 
         message: `No action taken for document type ${_type}` 
@@ -98,14 +94,12 @@ async function handleDocumentDeletion(payload: SanityWebhookPayload): Promise<Ne
       .eq('sanity_id', _id);
       
     if (error) {
-      console.error(`Error updating Supabase record for deleted Sanity document:`, error);
       return NextResponse.json(
         { success: false, error: error.message }, 
         { status: 500 }
       );
     }
     
-    console.log(`✅ Successfully marked Supabase record as deleted for Sanity ID: ${_id}`);
     
     // Handle special cases for different document types
     if (_type === 'userSubscription') {
@@ -122,7 +116,6 @@ async function handleDocumentDeletion(payload: SanityWebhookPayload): Promise<Ne
     });
     
   } catch (error) {
-    console.error('Error handling document deletion:', error);
     return NextResponse.json(
       { 
         success: false, 
@@ -149,13 +142,10 @@ async function handleRelatedSubscriptionData(subscriptionId: string): Promise<vo
       .eq('is_from_subscription', true);
       
     if (error) {
-      console.error(`Error marking related appointments as deleted:`, error);
       // Non-blocking error - we continue even if this fails
     } else {
-      console.log(`✅ Successfully marked related appointments as deleted for subscription ID: ${subscriptionId}`);
     }
   } catch (error) {
-    console.error('Error handling related subscription data:', error);
     // Non-blocking error - we continue even if this fails
   }
 }
@@ -175,13 +165,10 @@ async function handleRelatedOrderData(orderId: string): Promise<void> {
       .eq('order_id', orderId);
       
     if (error) {
-      console.error(`Error marking order items as deleted:`, error);
       // Non-blocking error - we continue even if this fails
     } else {
-      console.log(`✅ Successfully marked order items as deleted for order ID: ${orderId}`);
     }
   } catch (error) {
-    console.error('Error handling related order data:', error);
     // Non-blocking error - we continue even if this fails
   }
 }
