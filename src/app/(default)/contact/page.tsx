@@ -1,57 +1,61 @@
-// src/app/(default)/contact/page.tsx
-'use client';
-
 import { Metadata } from 'next';
 import ContactForm from '@/components/ContactForm';
 import PageHeader from '@/components/PageHeader';
-import { useTranslations } from '@/hooks/useTranslations';
-import { useEffect } from 'react';
+
+export const metadata: Metadata = {
+  title: "Contact Us - Lily's Women's Health",
+  description: "Get in touch with Lily's Women's Health. Contact our support team for questions about telehealth consultations, weight loss programs, and GLP-1 medications.",
+  keywords: [
+    "contact Lily's",
+    "customer support",
+    "telehealth support", 
+    "weight loss help",
+    "women's health contact",
+    "consultation questions",
+    "GLP-1 medication support",
+    "healthcare assistance"
+  ],
+  openGraph: {
+    title: "Contact Lily's Women's Health",
+    description: "Get in touch with our support team for questions about telehealth consultations and weight loss programs.",
+    url: "https://lilyswomenshealth.com/contact",
+    images: [
+      {
+        url: "/images/contact-og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Contact Lily's Women's Health"
+      }
+    ]
+  },
+  twitter: {
+    title: "Contact Lily's Women's Health",
+    description: "Get in touch with our support team for questions about telehealth consultations and weight loss programs."
+  }
+};
 
 export default function ContactPage() {
-  const { t } = useTranslations();
-
-  // Update page title dynamically for SEO
-  useEffect(() => {
-    document.title = t('contact.meta.title');
-    
-    // Update meta description
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', t('contact.meta.description'));
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = 'description';
-      meta.content = t('contact.meta.description');
-      document.head.appendChild(meta);
-    }
-  }, [t]);
-
   return (
     <div className="bg-white text-black">
-      {/* Page Header */}
       <PageHeader 
-        title={t('contact.header.title')}
-        subtitle={t('contact.header.subtitle')}
+        title="Contact Us"
+        subtitle="Get in touch with our support team"
       />
 
-      {/* Main content */}
       <div className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            {/* Contact Form */}
             <div className="lg:col-span-3">
               <ContactForm />
             </div>
 
-            {/* Contact Information */}
             <div className="lg:col-span-2">
               <div className="bg-pink-50 p-8 rounded-lg shadow-sm border border-pink-100 sticky top-8">
                 <h2 className="text-2xl font-semibold text-black mb-6">
-                  {t('contact.info.title')}
+                  Contact Information
                 </h2>
                 
                 <div className="space-y-6">
-                  {/* Email */}
                   <div className="flex items-start">
                     <div className="flex-shrink-0 h-10 w-10 rounded-full bg-pink-100 flex items-center justify-center">
                       <svg className="h-5 w-5 text-[#fc4e87]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -59,9 +63,7 @@ export default function ContactPage() {
                       </svg>
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-medium text-black">
-                        {t('contact.info.email.label')}
-                      </h3>
+                      <h3 className="text-lg font-medium text-black">Email</h3>
                       <a 
                         href="mailto:cole@lilyswomenshealth.com"
                         className="mt-1 text-[#fc4e87] hover:text-pink-600 transition-colors"
@@ -69,12 +71,11 @@ export default function ContactPage() {
                         cole@lilyswomenshealth.com
                       </a>
                       <p className="mt-1 text-sm text-gray-600">
-                        {t('contact.info.email.description')}
+                        Send us an email anytime!
                       </p>
                     </div>
                   </div>
 
-                  {/* Phone */}
                   <div className="flex items-start">
                     <div className="flex-shrink-0 h-10 w-10 rounded-full bg-pink-100 flex items-center justify-center">
                       <svg className="h-5 w-5 text-[#fc4e87]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -82,9 +83,7 @@ export default function ContactPage() {
                       </svg>
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-medium text-black">
-                        {t('contact.info.phone.label')}
-                      </h3>
+                      <h3 className="text-lg font-medium text-black">Phone</h3>
                       <a 
                         href="tel:682-386-7827"
                         className="mt-1 text-[#fc4e87] hover:text-pink-600 transition-colors"
@@ -92,12 +91,11 @@ export default function ContactPage() {
                         682-386-7827
                       </a>
                       <p className="mt-1 text-sm text-gray-600">
-                        {t('contact.info.phone.description')}
+                        Mon-Fri from 8am to 5pm CT
                       </p>
                     </div>
                   </div>
 
-                  {/* Hours */}
                   <div className="flex items-start">
                     <div className="flex-shrink-0 h-10 w-10 rounded-full bg-pink-100 flex items-center justify-center">
                       <svg className="h-5 w-5 text-[#fc4e87]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,15 +103,9 @@ export default function ContactPage() {
                       </svg>
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-medium text-black">
-                        {t('contact.info.hours.label')}
-                      </h3>
-                      <p className="mt-1 text-gray-700">
-                        {t('contact.info.hours.schedule')}
-                      </p>
-                      <p className="mt-0.5 text-gray-700">
-                        {t('contact.info.hours.availability')}
-                      </p>
+                      <h3 className="text-lg font-medium text-black">Business Hours</h3>
+                      <p className="mt-1 text-gray-700">Monday - Friday: 8:00 AM - 5:00 PM CT</p>
+                      <p className="mt-0.5 text-gray-700">Weekend: By appointment</p>
                     </div>
                   </div>
                 </div>

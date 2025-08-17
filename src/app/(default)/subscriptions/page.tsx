@@ -7,8 +7,37 @@ import { SubscriptionsData, Subscription, SubscriptionCategory } from '@/types/s
 import PageHeader from '@/components/PageHeader';
 
 export const metadata: Metadata = {
-  title: 'Subscription Plans',
-  description: 'Choose a subscription plan that best fits your needs',
+  title: "Subscription Plans - Lily's Women's Health",
+  description: "Choose from Lily's telehealth subscription plans for medically guided weight loss. Access licensed doctors, GLP-1 medications like semaglutide and tirzepatide through secure consultations.",
+  keywords: [
+    "subscription plans",
+    "weight loss subscriptions",
+    "semaglutide plans",
+    "tirzepatide subscriptions",
+    "telehealth plans",
+    "women's health subscriptions",
+    "medical weight loss plans",
+    "GLP-1 medication plans",
+    "monthly telehealth",
+    "Lily's plans"
+  ],
+  openGraph: {
+    title: "Lily's Women's Health - Subscription Plans",
+    description: "Choose from our telehealth subscription plans for medically guided weight loss with licensed doctors.",
+    url: "https://lilyswomenshealth.com/subscriptions",
+    images: [
+      {
+        url: "/images/subscriptions-og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Lily's Women's Health Subscription Plans"
+      }
+    ]
+  },
+  twitter: {
+    title: "Lily's Women's Health - Subscription Plans",
+    description: "Choose from our telehealth subscription plans for medically guided weight loss with licensed doctors."
+  }
 };
 
 // Enhanced function to fetch subscriptions with variants and FAQ items

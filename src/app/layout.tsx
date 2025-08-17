@@ -18,8 +18,63 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lily's",
-  description: "Start your journey with personalized care",
+  title: {
+    default: "Lily's Women's Health - Telehealth Weight Loss Solutions",
+    template: "%s | Lily's Women's Health"
+  },
+  description: "Lily's connects women with licensed doctors for medically guided weight loss through secure telehealth consultations. Clinically backed GLP-1 medications like semaglutide and tirzepatide prescribed when appropriate.",
+  keywords: [
+    "women's health",
+    "telehealth",
+    "weight loss",
+    "semaglutide", 
+    "tirzepatide",
+    "GLP-1 medications",
+    "licensed doctors",
+    "medical weight loss",
+    "women's wellness",
+    "online consultations"
+  ],
+  authors: [{ name: "Lily's Women's Health" }],
+  creator: "Lily's Women's Health",
+  publisher: "Lily's Women's Health",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://lilyswomenshealth.com",
+    siteName: "Lily's Women's Health",
+    title: "Lily's Women's Health - Telehealth Weight Loss Solutions",
+    description: "Connecting women with licensed doctors for medically guided weight loss through secure telehealth consultations.",
+    images: [
+      {
+        url: "/images/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Lily's Women's Health - Telehealth Weight Loss Solutions"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Lily's Women's Health - Telehealth Weight Loss Solutions",
+    description: "Connecting women with licensed doctors for medically guided weight loss through secure telehealth consultations.",
+    images: ["/images/twitter-image.jpg"]
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1
+    }
+  },
+  verification: {
+    google: "your-google-site-verification-code"
+  },
+  category: "Health & Wellness"
 };
 
 export default function RootLayout({
