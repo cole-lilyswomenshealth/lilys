@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://lilyswomenshealth.com'),
   title: {
     default: "Lily's Women's Health - Telehealth Weight Loss Solutions",
     template: "%s | Lily's Women's Health"
