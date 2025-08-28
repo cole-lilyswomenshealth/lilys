@@ -162,6 +162,7 @@ export const facebookEventSchema = z.object({
     ln: z.string().optional(), // last name (auto-hashed by Meta)
     st: z.string().optional(), // state
     db: z.string().optional(), // date of birth YYYYMMDD format
+    ph: z.string().optional(), // phone number (auto-hashed by Meta)
   }).optional(),
   customData: z.object({
     content_type: z.string().optional(),
