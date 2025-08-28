@@ -172,10 +172,10 @@ export async function POST(req: NextRequest): Promise<NextResponse<FacebookEvent
           ...(userAgent && { client_user_agent: userAgent }),
           ...(fbp && { fbp }),
           ...(fbc && { fbc }),
-          // User data (Meta handles hashing automatically)
-          ...(eventData.userData?.em && { em: eventData.userData.em }),
-          ...(eventData.userData?.fn && { fn: eventData.userData.fn }),
-          ...(eventData.userData?.ln && { ln: eventData.userData.ln }),
+          // User data (must be hashed with SHA256)
+          ...(eventData.userData?.em && { em: crypto.createHash('sha256').update(eventData.userData.em.toLowerCase().trim()).digest('hex') }),
+          ...(eventData.userData?.fn && { fn: crypto.createHash('sha256').update(eventData.userData.fn.toLowerCase().trim()).digest('hex') }),
+          ...(eventData.userData?.ln && { ln: crypto.createHash('sha256').update(eventData.userData.ln.toLowerCase().trim()).digest('hex') }),
           ...(eventData.userData?.st && { st: eventData.userData.st }),
           ...(eventData.userData?.db && { db: eventData.userData.db }),
         },
