@@ -16,6 +16,7 @@ interface FacebookEventRequest {
     ln?: string; // last name
     st?: string; // state
     db?: string; // date of birth
+    ph?: string; // phone number
   };
   customData?: {
     content_type?: string;
@@ -62,6 +63,7 @@ interface FacebookPayload {
       ln?: string; // last name (hashed by Meta)
       st?: string; // state
       db?: string; // date of birth
+      ph?: string; // phone number (hashed by Meta)
     };
     custom_data?: {
       content_type?: string;
@@ -176,8 +178,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<FacebookEvent
           ...(eventData.userData?.em && { em: crypto.createHash('sha256').update(eventData.userData.em.toLowerCase().trim()).digest('hex') }),
           ...(eventData.userData?.fn && { fn: crypto.createHash('sha256').update(eventData.userData.fn.toLowerCase().trim()).digest('hex') }),
           ...(eventData.userData?.ln && { ln: crypto.createHash('sha256').update(eventData.userData.ln.toLowerCase().trim()).digest('hex') }),
-          ...(eventData.userData?.st && { st: eventData.userData.st }),
-          ...(eventData.userData?.db && { db: eventData.userData.db }),
+          ...(eventData.userData?.st && { st: crypto.createHash('sha256').update(eventData.userData.st.toLowerCase().trim()).digest('hex') }),
+          ...(eventData.userData?.db && { db: crypto.createHash('sha256').update(eventData.userData.db.trim()).digest('hex') }),
+          ...(eventData.userData?.ph && { ph: crypto.createHash('sha256').update(eventData.userData.ph.replace(/\D/g, '').trim()).digest('hex') }),
         },
         ...(eventData.customData && {
           custom_data: {
