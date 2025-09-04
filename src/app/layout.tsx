@@ -87,7 +87,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* Facebook domain verification */}
-        <meta name="facebook-domain-verification" content="gjthc5q7m1t5r9perykssp9h6kdr2r" />
+        <meta name="facebook-domain-verification" content="jjttic5q7an1t5z9gwy9caap908u2o" />
         {/* Qualiphy stylesheet */}
         <link 
           rel="stylesheet" 
