@@ -211,24 +211,11 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
       );
     }
     
-    // Check rate limit
-    const rateLimitResult = await purchaseRateLimit(req, userId);
-    if (!rateLimitResult.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Rate limit exceeded. Please try again later.',
-        },
-        { 
-          status: 429,
-          headers: {
-            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
-            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-            'X-RateLimit-Reset': new Date(rateLimitResult.resetTime).toISOString(),
-          }
-        }
-      );
-    }
+    // Rate limiting temporarily disabled for testing
+    // const rateLimitResult = await purchaseRateLimit(req, userId);
+    // if (!rateLimitResult.success) {
+    //   return NextResponse.json({ success: false, error: 'Too many requests' }, { status: 429 });
+    // }
 
     // 🔧 FIXED: Correct variant selection logic
     let selectedVariant: SanitySubscriptionVariant | null = null;

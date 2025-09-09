@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * @returns The authenticated user or null if not authenticated
  */
 export async function getAuthenticatedUser() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
   
   try {
@@ -30,7 +30,7 @@ export async function getAuthenticatedUser() {
  * @returns Object containing either the user or an error response
  */
 export async function verifyAuthenticatedRequest(req: NextRequest) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
   
   try {
@@ -62,7 +62,7 @@ export async function verifyAuthenticatedRequest(req: NextRequest) {
  * Creates a authenticated Supabase client for server components
  * @returns Supabase client authenticated from cookies
  */
-export function createServerSupabaseClient() {
-  const cookieStore = cookies();
+export async function createServerSupabaseClient() {
+  const cookieStore = await cookies();
   return createRouteHandlerClient({ cookies: () => cookieStore });
 }

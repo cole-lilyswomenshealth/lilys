@@ -339,6 +339,15 @@ export default function SubscriptionDetails({ subscription }: SubscriptionDetail
   const handlePurchase = useCallback(async () => {
     if (isProcessing || isLoading) return;
     
+    // Prevent rapid successive clicks
+    const now = Date.now();
+    const lastClick = sessionStorage.getItem('lastPurchaseClick');
+    if (lastClick && now - parseInt(lastClick) < 3000) {
+      setPurchaseError('Please wait a moment before trying again.');
+      return;
+    }
+    sessionStorage.setItem('lastPurchaseClick', now.toString());
+    
     try {
       // Reset all error states
       setPurchaseError('');

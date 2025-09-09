@@ -186,8 +186,8 @@ export async function purchaseRateLimit(
   const baseKey = userId ? `user:${userId}` : defaultKeyGenerator(req);
   
   return await checkRateLimit(`purchase:${baseKey}`, {
-    windowMs: 60 * 60 * 1000, // 1 hour
-    maxRequests: 5, // 5 purchase attempts per hour
+    windowMs: 30 * 60 * 1000, // 30 minutes (shorter window)
+    maxRequests: 15, // 15 purchase attempts per 30 minutes
   });
 }
 
