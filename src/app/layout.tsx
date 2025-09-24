@@ -6,6 +6,7 @@ import AuthProvider from "@/components/Auth/AuthProvider";
 import I18nProvider from "@/components/I18nProvider";
 import HtmlLangAttribute from "@/components/HtmlLangAttribute";
 import FacebookPixel from "@/components/Analytics/FacebookPixel";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -96,6 +97,7 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} bg-[#F7F7F7] antialiased`}>
         <FacebookPixel />
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-R9B2YV81G0'} />
         <AuthProvider>
           <I18nProvider>
             <HtmlLangAttribute />
