@@ -40,6 +40,11 @@ export function useRecaptcha({ siteKey }: UseRecaptchaProps) {
   const executeRecaptcha = async (action: string): Promise<string | null> => {
     if (!siteKey) return null;
 
+    // Return fake token in development mode
+    if (process.env.NODE_ENV === 'development') {
+      return 'dev_fake_token_' + Date.now();
+    }
+
     return new Promise((resolve) => {
       if (window.grecaptcha) {
         window.grecaptcha.ready(() => {
