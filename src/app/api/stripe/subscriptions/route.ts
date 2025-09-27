@@ -314,16 +314,17 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
         .catch(() => {});
     }
 
-    // Get or create Stripe price
+    // Get or create Stripe price and handle coupon
     let stripePriceId: string;
-    
-    if (appliedCoupon) {
-      // Create temporary price for discounted amount
+    let stripeCouponId: string | undefined;
+
+    // Helper function to create price if needed
+    const createPrice = async (price: number): Promise<string> => {
       const { interval, interval_count } = getStripeIntervalConfig(effectiveBillingPeriod, effectiveCustomMonths);
-      
+
       const stripePrice = await stripe.prices.create({
         product: stripeProductId,
-        unit_amount: Math.round(effectivePrice * 100),
+        unit_amount: Math.round(price * 100),
         currency: 'usd',
         recurring: {
           interval,
@@ -333,49 +334,99 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
           sanityId: subscription._id,
           variantKey: selectedVariant ? selectedVariant._key : '',
           billingPeriod: effectiveBillingPeriod,
-          customBillingPeriodMonths: effectiveCustomMonths?.toString() || '',
-          couponCode: appliedCoupon.code,
-          originalPrice: originalPrice.toString(),
-          tempPrice: 'true' // Mark as temporary price
+          customBillingPeriodMonths: effectiveCustomMonths?.toString() || ''
         }
       });
-      stripePriceId = stripePrice.id;
+      return stripePrice.id;
+    };
+
+    if (appliedCoupon) {
+      // Create or find Stripe coupon for discount display
+      try {
+        // Check if Stripe coupon already exists for this Sanity coupon
+        const existingCoupons = await stripe.coupons.list({
+          limit: 100
+        });
+
+        const existingCoupon = existingCoupons.data.find(c =>
+          c.metadata?.sanityId === appliedCoupon._id && c.valid
+        );
+
+        if (existingCoupon) {
+          stripeCouponId = existingCoupon.id;
+        } else {
+          // Create new Stripe coupon
+          const couponParams: Stripe.CouponCreateParams = {
+            duration: 'once', // Apply only to first payment
+            name: `${appliedCoupon.code} - ${appliedCoupon.discountType === 'percentage' ? appliedCoupon.discountValue + '%' : '$' + appliedCoupon.discountValue} off`,
+            metadata: {
+              sanityId: appliedCoupon._id,
+              code: appliedCoupon.code
+            }
+          };
+
+          if (appliedCoupon.discountType === 'percentage') {
+            couponParams.percent_off = appliedCoupon.discountValue;
+          } else {
+            couponParams.amount_off = Math.round(appliedCoupon.discountValue * 100);
+            couponParams.currency = 'usd';
+          }
+
+          const stripeCoupon = await stripe.coupons.create(couponParams);
+          stripeCouponId = stripeCoupon.id;
+        }
+
+        // Use original price (not discounted) since Stripe will apply the discount
+        if (selectedVariant && selectedVariant.stripePriceId) {
+          stripePriceId = selectedVariant.stripePriceId;
+        } else if (!selectedVariant && subscription.stripePriceId) {
+          stripePriceId = subscription.stripePriceId;
+        } else {
+          stripePriceId = await createPrice(originalPrice); // Use original price
+
+          // Update Sanity with the new price ID (non-blocking)
+          const updatePromise = selectedVariant
+            ? sanityClient
+                .patch(subscription._id)
+                .setIfMissing({ variants: [] })
+                .set({ [`variants[_key=="${selectedVariant._key}"].stripePriceId`]: stripePriceId })
+                .commit()
+            : sanityClient.patch(subscription._id).set({ stripePriceId }).commit();
+
+          updatePromise.catch(() => {});
+        }
+
+      } catch (couponError) {
+        console.error('Stripe coupon creation failed:', couponError);
+        // Fallback to original price without discount
+        stripeCouponId = undefined;
+
+        if (selectedVariant && selectedVariant.stripePriceId) {
+          stripePriceId = selectedVariant.stripePriceId;
+        } else if (!selectedVariant && subscription.stripePriceId) {
+          stripePriceId = subscription.stripePriceId;
+        } else {
+          stripePriceId = await createPrice(originalPrice);
+        }
+      }
     } else {
-      // Use existing price or create new one
+      // No coupon - use existing price or create new one
       if (selectedVariant && selectedVariant.stripePriceId) {
         stripePriceId = selectedVariant.stripePriceId;
       } else if (!selectedVariant && subscription.stripePriceId) {
         stripePriceId = subscription.stripePriceId;
       } else {
-        // Create new price
-        const { interval, interval_count } = getStripeIntervalConfig(effectiveBillingPeriod, effectiveCustomMonths);
-        
-        const stripePrice = await stripe.prices.create({
-          product: stripeProductId,
-          unit_amount: Math.round(effectivePrice * 100),
-          currency: 'usd',
-          recurring: {
-            interval,
-            interval_count,
-          },
-          metadata: {
-            sanityId: subscription._id,
-            variantKey: selectedVariant ? selectedVariant._key : '',
-            billingPeriod: effectiveBillingPeriod,
-            customBillingPeriodMonths: effectiveCustomMonths?.toString() || ''
-          }
-        });
-        stripePriceId = stripePrice.id;
-        
+        stripePriceId = await createPrice(originalPrice);
+
         // Update Sanity with the new price ID (non-blocking)
         const updatePromise = selectedVariant
           ? sanityClient
               .patch(subscription._id)
               .setIfMissing({ variants: [] })
-              .set({ [`variants[_key=="${selectedVariant._key}"].stripePriceId`]: stripePrice.id })
+              .set({ [`variants[_key=="${selectedVariant._key}"].stripePriceId`]: stripePriceId })
               .commit()
-          : sanityClient.patch(subscription._id).set({ stripePriceId: stripePrice.id }).commit();
-        
+          : sanityClient.patch(subscription._id).set({ stripePriceId }).commit();
+
         updatePromise.catch(() => {});
       }
     }
@@ -393,15 +444,21 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubscriptionP
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ['card'],
-      line_items: [{ 
-        price: stripePriceId, 
-        quantity: 1 
+      line_items: [{
+        price: stripePriceId,
+        quantity: 1
       }],
       mode: 'subscription',
       locale: 'en',
       success_url: `${baseUrl}/appointment?subscription_success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/subscriptions?canceled=true`,
       customer: stripeCustomerId,
+      // Add discount if coupon is applied
+      ...(stripeCouponId && {
+        discounts: [{
+          coupon: stripeCouponId
+        }]
+      }),
       metadata: {
         userId,
         userEmail,
