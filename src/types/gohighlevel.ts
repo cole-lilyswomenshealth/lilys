@@ -10,7 +10,7 @@ export interface GHLContact {
   phone: string; // E.164 format: +15555555555
   locationId: string; // GHL Location ID
   tags?: string[]; // e.g., ["lead", "weight-loss"]
-  customField?: Record<string, any>; // Custom fields object
+  customField?: Record<string, string | number | boolean | null>; // Custom fields object
   source?: string; // Lead source
   state?: string; // Full state name (e.g., "California")
   dateOfBirth?: string; // YYYY-MM-DD format
