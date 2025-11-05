@@ -36,61 +36,77 @@ const submitToSalesforce = async (formData: FormResponse, contactInfo?: ContactI
   }
 };
 
-// NEW: Background user data submission function
+// State mapping utility
+const stateAbbreviationToName: Record<string, string> = {
+  'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+  'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+  'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
+  'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+  'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
+  'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+  'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
+  'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+  'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+  'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming'
+};
+
+// Background user data submission function
 const submitUserDataInBackground = async (contactInfo: ContactInfoData): Promise<void> => {
   try {
-    // Convert state abbreviation to full state name
-    const stateAbbreviationToName: Record<string, string> = {
-      'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
-      'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
-      'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
-      'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
-      'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
-      'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
-      'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
-      'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
-      'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
-      'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming'
-    };
-
-    // Convert state abbreviation to full name
     const fullStateName = stateAbbreviationToName[contactInfo.state] || contactInfo.state;
-
-    // console.log('🔄 Submitting user data:', {
-    //   firstName: contactInfo.firstName,
-    //   lastName: contactInfo.lastName,
-    //   email: contactInfo.email,
-    //   phone: contactInfo.phone,
-    //   state: contactInfo.state,
-    //   fullStateName: fullStateName,
-    //   dateOfBirth: contactInfo.dateOfBirth
-    // });
 
     const response = await fetch('/api/user-data', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         firstName: contactInfo.firstName,
         lastName: contactInfo.lastName,
         email: contactInfo.email,
         phone: contactInfo.phone,
-        state: fullStateName, // Use full state name instead of abbreviation
+        state: fullStateName,
         dateOfBirth: contactInfo.dateOfBirth
       }),
       credentials: 'include'
     });
 
     const result = await response.json();
-    
-    if (result.success) {
-      console.log('success');
-    } else {
-      console.warn('Failed', result.error);
-    }
+    if (!result.success) console.warn('User data failed:', result.error);
   } catch (error) {
-    console.error('Error', error);
+    console.error('User data error:', error);
+  }
+};
+
+// GHL lead submission function
+const submitToGHL = async (formData: FormResponse, contactInfo: ContactInfoData, bmi: number | null, eligible: boolean): Promise<void> => {
+  try {
+    const fullStateName = stateAbbreviationToName[contactInfo.state] || contactInfo.state;
+
+    await fetch('/api/gohighlevel/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName: contactInfo.firstName,
+        lastName: contactInfo.lastName,
+        email: contactInfo.email,
+        phone: contactInfo.phone,
+        state: fullStateName,
+        dateOfBirth: contactInfo.dateOfBirth,
+        ageGroup: formData['age-group'],
+        isFemale: formData['gender'] === 'Yes',
+        currentWeight: formData['current-weight'],
+        height: formData['height'] ? JSON.parse(formData['height'] as string) : null,
+        bmi,
+        isPregnant: formData['pregnant'] === 'Yes',
+        isBreastfeeding: formData['breastfeeding'] === 'Yes',
+        medicalConditions: formData['medical-conditions'],
+        takesPrescriptionMedications: formData['prescription-medications'] === 'Yes',
+        hasEatingDisorder: formData['eating-disorder'] === 'Yes',
+        previousWeightLossAttempts: formData['previous-weight-loss'],
+        eligible
+      })
+    });
+  } catch (error) {
+    // Silent failure - don't block user flow
   }
 };
 
@@ -236,15 +252,16 @@ export default function WeightLossForm({ initialOffset = 1 }: WeightLossFormProp
         );
       }
       
-      // Submit user data in background (fire and forget)
+      // Parallel submissions (fire and forget - non-blocking)
       if (contactInfo) {
-        submitUserDataInBackground(contactInfo);
+        Promise.all([
+          submitUserDataInBackground(contactInfo),
+          submitToSalesforce(responses, contactInfo),
+          submitToGHL(responses, contactInfo, bmi, isEligible)
+        ]).catch(() => {
+          // Handle errors silently - don't block user flow
+        });
       }
-      
-      // Original Salesforce submission (existing functionality)
-      submitToSalesforce(responses, contactInfo).catch(() => {
-        // Handle error silently
-      });
       
       router.push("/c/wm/results");
     } else {
