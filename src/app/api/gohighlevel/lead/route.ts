@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
     // Format phone to E.164
     const phone = formatPhoneToE164(data.phone);
 
-    // Build custom fields from survey data
-    const customField: GHLWeightLossCustomFields = {
+    // Build custom fields from survey data (GHL format: array of {key, value} objects)
+    const customFieldsData: GHLWeightLossCustomFields = {
       age_group: data.ageGroup,
       female: data.isFemale ? 'Yes' : 'No',
       current_weight: data.currentWeight,
@@ -35,6 +35,11 @@ export async function POST(request: NextRequest) {
       date_of_birth: data.dateOfBirth,
     };
 
+    // Convert to GHL's required array format
+    const customFields = Object.entries(customFieldsData)
+      .filter(([_, value]) => value !== undefined && value !== null)
+      .map(([key, value]) => ({ key, value: String(value) }));
+
     // Create GHL lead payload
     const ghlLead: GHLWeightLossLead = {
       firstName: data.firstName,
@@ -44,7 +49,7 @@ export async function POST(request: NextRequest) {
       locationId: process.env.GHL_LOCATION_ID!,
       tags: ['lead', 'weight-loss'],
       source: 'Website - Weight Loss Survey',
-      customField,
+      customFields,
     };
 
     // Send to GHL

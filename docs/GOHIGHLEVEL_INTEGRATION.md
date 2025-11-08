@@ -46,7 +46,7 @@ Automatically sync paying customers from Stripe to GHL with subscription metadat
 POST https://services.leadconnectorhq.com/contacts/
 
 Headers:
-  Authorization: Bearer <API_KEY>
+  Authorization: Bearer pit-9f0be75c-0556-49b8-a5ca-91435113abcb
   Content-Type: application/json
   Version: 2021-07-28
 
@@ -58,9 +58,17 @@ Body:
     "email": "john@test.com",
     "phone": "+15555555555",
     "tags": ["lead", "weight-loss"],
-    "customField": { ... }
+    "source": "Website - Weight Loss Survey",
+    "customFields": [
+      {"key": "age_group", "value": "35-44"},
+      {"key": "current_weight", "value": "180"}
+    ]
   }
 ```
+
+**Authentication & Format Updates (2025-11-07)**:
+- **Authentication**: Private Integration Tokens (pit-xxxx) still require "Bearer" prefix per official GHL docs
+- **Custom Fields**: Must be sent as `customFields` (plural) array with `{key, value}` objects (not single `customField` object)
 
 ### Survey Types & Data Collected
 
@@ -269,12 +277,14 @@ Body:
 **Environment Variables** (add to `.env.local`):
 ```bash
 # GoHighLevel Integration
-GHL_API_KEY=<provided_bearer_token>
+GHL_API_KEY=pit-9f0be75c-0556-49b8-a5ca-91435113abcb
 GHL_LOCATION_ID=Vu2giIsaSzilUPa8K4ec
 GHL_API_URL=https://services.leadconnectorhq.com
 GHL_API_VERSION=2021-07-28
 GHL_INTEGRATION_ENABLED=true
 ```
+
+**Note**: As of 2025-11-07, GHL uses Private Integration Token (pit-xxxx) format. Despite being called "Private Integration" tokens, they still use standard Bearer token authentication format.
 
 ---
 

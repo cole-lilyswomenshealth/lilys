@@ -37,6 +37,14 @@ export interface GHLWeightLossCustomFields {
 }
 
 /**
+ * GHL Custom Field Format (array of key-value pairs)
+ */
+export interface GHLCustomField {
+  key: string;
+  value: string;
+}
+
+/**
  * Weight Loss Lead Data - Complete structure for GHL API
  */
 export interface GHLWeightLossLead {
@@ -51,8 +59,8 @@ export interface GHLWeightLossLead {
   tags: string[]; // ["lead", "weight-loss"]
   source?: string;
 
-  // Custom fields
-  customField: GHLWeightLossCustomFields;
+  // Custom fields (GHL requires array format)
+  customFields: GHLCustomField[];
 }
 
 /**
