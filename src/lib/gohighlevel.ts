@@ -3,7 +3,7 @@
  * Minimal implementation for lead management
  */
 
-import type { GHLWeightLossLead, GHLApiResponse } from '@/types/gohighlevel';
+import type { GHLLead, GHLApiResponse } from '@/types/gohighlevel';
 
 const GHL_API_URL = process.env.GHL_API_URL || 'https://services.leadconnectorhq.com';
 const GHL_API_KEY = process.env.GHL_API_KEY;
@@ -26,8 +26,9 @@ export class GoHighLevelService {
 
   /**
    * Create or update contact in GHL
+   * Uses upsert behavior: updates existing contact (by email) or creates new one
    */
-  async upsertContact(data: GHLWeightLossLead): Promise<GHLApiResponse> {
+  async upsertContact(data: GHLLead): Promise<GHLApiResponse> {
     if (!GHL_ENABLED) {
       console.log('GHL integration disabled');
       return { message: 'GHL disabled' };
@@ -36,6 +37,7 @@ export class GoHighLevelService {
     const payload = {
       ...data,
       locationId: this.locationId,
+      upsert: true, // Always use upsert behavior per GHL team recommendation
     };
 
     const response = await fetch(`${this.baseUrl}/contacts/`, {

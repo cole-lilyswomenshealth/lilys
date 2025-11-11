@@ -45,9 +45,9 @@ export interface GHLCustomField {
 }
 
 /**
- * Weight Loss Lead Data - Complete structure for GHL API
+ * Generic GHL Lead Data - Base structure for GHL API
  */
-export interface GHLWeightLossLead {
+export interface GHLLead {
   // Required contact fields
   firstName: string;
   lastName: string;
@@ -56,12 +56,19 @@ export interface GHLWeightLossLead {
   locationId: string;
 
   // Optional fields
-  tags: string[]; // ["lead", "weight-loss"]
+  tags: string[];
   source?: string;
+  upsert?: boolean; // Upsert flag for update/create behavior
 
   // Custom fields (GHL requires array format)
   customFields: GHLCustomField[];
 }
+
+/**
+ * Weight Loss Lead Data - Complete structure for GHL API
+ * @deprecated Use GHLLead instead
+ */
+export interface GHLWeightLossLead extends GHLLead {}
 
 /**
  * Stripe Customer Metadata - Custom fields (Future Phase)
