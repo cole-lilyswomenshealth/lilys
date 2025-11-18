@@ -27,6 +27,7 @@ export class GoHighLevelService {
   /**
    * Create or update contact in GHL
    * Uses upsert behavior: updates existing contact (by email) or creates new one
+   * Note: Upsert is automatic in GHL API - no explicit flag needed
    */
   async upsertContact(data: GHLLead): Promise<GHLApiResponse> {
     if (!GHL_ENABLED) {
@@ -37,7 +38,7 @@ export class GoHighLevelService {
     const payload = {
       ...data,
       locationId: this.locationId,
-      upsert: true, // Always use upsert behavior per GHL team recommendation
+      // Upsert behavior is automatic in GHL API based on email matching
     };
 
     const response = await fetch(`${this.baseUrl}/contacts/`, {

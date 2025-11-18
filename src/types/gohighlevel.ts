@@ -46,6 +46,7 @@ export interface GHLCustomField {
 
 /**
  * Generic GHL Lead Data - Base structure for GHL API
+ * Note: Upsert behavior is automatic in GHL API based on email matching
  */
 export interface GHLLead {
   // Required contact fields
@@ -58,7 +59,6 @@ export interface GHLLead {
   // Optional fields
   tags: string[];
   source?: string;
-  upsert?: boolean; // Upsert flag for update/create behavior
 
   // Custom fields (GHL requires array format)
   customFields: GHLCustomField[];
