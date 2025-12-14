@@ -34,7 +34,7 @@
     "isomorphic-dompurify": "^2.26.0",
     "jsforce": "^3.8.2",
     "lucide-react": "^0.475.0",
-    "next": "^15.2.4",
+    "next": "15.2.8",
     "next-auth": "^4.24.11",
     "next-i18next": "^15.4.2",
     "next-sanity": "^9.8.61",
